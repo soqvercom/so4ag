@@ -6,7 +6,7 @@ scope, origin and validity. It answers one question: may this fact be used for t
 Standard library only. It reads SO4AG JSON, the JSON-LD form, or an HTML page with the JSON-LD embedded.
 
 ```bash
-pip install so4ag
+pip install https://github.com/soqvercom/so4ag/releases/download/v0.1.1/so4ag-0.1.1-py3-none-any.whl
 # examples/valid/rental-first-party.json from https://github.com/soqvercom/so4ag
 so4ag ask rental-first-party.json --property refundableDeposit --scope vehicle_class=economy   --scope branch=https://rental.example/branches/prague-airport
 # the same question without the branch: not usable, the claim holds for one branch only

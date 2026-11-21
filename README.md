@@ -22,7 +22,24 @@ Status: working draft. The format is free to use and needs no account. It is not
 SOQVER (https://soqver.com) is one service that prepares, confirms and publishes SO4AG sources; anyone can publish
 a source on their own domain without it.
 
-## Try it
+## Install
+
+Both packages install straight from this repository; no registry account is needed.
+
+```bash
+# JavaScript (Node 20 or newer): validator, reader, command so4ag-validate
+npm install github:soqvercom/so4ag#v0.1.1
+npx so4ag-validate https://example.com/so4ag.json
+
+# Python (3.10 or newer, standard library only): reader, command so4ag
+pip install https://github.com/soqvercom/so4ag/releases/download/v0.1.1/so4ag-0.1.1-py3-none-any.whl
+so4ag ask so4ag.json --property refundableDeposit --scope vehicle_class=economy
+```
+
+To follow the main branch instead of a release: `npm install github:soqvercom/so4ag` and
+`pip install "git+https://github.com/soqvercom/so4ag.git#subdirectory=readers/python"`.
+
+## Try it from a checkout
 
 ```bash
 git clone https://github.com/soqvercom/so4ag.git

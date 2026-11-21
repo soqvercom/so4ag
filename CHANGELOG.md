@@ -2,6 +2,13 @@
 
 Changes of the specification are also listed at the end of `spec/so4ag-0.1.md`.
 
+## 0.1.1 (2026-11-22)
+
+- Both packages install straight from the repository and from the release files (no registry account needed).
+- The Python reader is a package (`so4ag`, command `so4ag`) that carries the profiles of the format.
+- Guide for developers: https://soqver.com/developers
+- No change of the specification, the schema or the conformance suite.
+
 ## 0.1.0 (2026-11-21)
 
 First public release of the repository.

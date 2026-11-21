@@ -1,0 +1,28 @@
+{
+  "title": "SO4AG: open format for business facts AI agents can rely on",
+  "description": "<p>SO4AG (Source Objects for AGents) is an open format for business facts. A fact is published together with what it means, where it applies, where it comes from and until when it is valid; \"unknown\" is a value of its own. A reader answers one question: may this fact be used for this task at this time, and if not, why not?</p><p>This record holds the specification (working draft 0.1), the JSON Schema, the Rental and Retail profiles, the conformance suite, the reference validator and reader in JavaScript and an independent reader in Python.</p>",
+  "upload_type": "software",
+  "creators": [
+    {
+      "name": "SOQVER"
+    }
+  ],
+  "license": "Apache-2.0",
+  "keywords": [
+    "SO4AG",
+    "AI agents",
+    "business facts",
+    "structured data",
+    "JSON Schema",
+    "JSON-LD",
+    "Model Context Protocol",
+    "validator"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://soqver.com/spec/so4ag/0.1/",
+      "relation": "isDocumentedBy",
+      "scheme": "url"
+    }
+  ]
+}
