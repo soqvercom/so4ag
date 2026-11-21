@@ -1,11 +1,17 @@
 # SO4AG — Source Objects for AGents
 
+[![test](https://github.com/soqvercom/so4ag/actions/workflows/test.yml/badge.svg)](https://github.com/soqvercom/so4ag/actions/workflows/test.yml)
+[![code: Apache-2.0](https://img.shields.io/badge/code-Apache--2.0-blue)](LICENSE)
+[![spec: CC BY 4.0](https://img.shields.io/badge/spec-CC%20BY%204.0-blue)](LICENSE-SPEC.md)
+[![MCP Registry](https://img.shields.io/badge/MCP%20Registry-com.soqver%2Fso4ag-blue)](https://registry.modelcontextprotocol.io/v0.1/servers?search=soqver)
+
 SO4AG is an open format for business facts that AI agents can rely on. A fact is published together with
 what it means, where it applies, where it comes from and until when it is valid. "Unknown" is a value of its own,
 never zero and never a guess.
 
 A reader answers one question: **may this fact be used for this task at this time, and if not, why not?**
 
+- Guide for developers, step by step (in 30 languages): https://soqver.com/developers
 - Specification 0.1: https://soqver.com/spec/so4ag/0.1/ (working draft 0.2: https://soqver.com/spec/so4ag/0.2/)
 - Lossless JSON-LD mapping: https://soqver.com/spec/so4ag/0.1/jsonld
 - Conformance suite: https://soqver.com/spec/so4ag/0.1/conformance/
