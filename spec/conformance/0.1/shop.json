@@ -1,0 +1,486 @@
+{
+  "so4ag": "0.1-draft",
+  "id": "https://shop.example/so4ag.json",
+  "revision": "2026-11-01.1",
+  "published_at": "2026-11-01T09:30:00Z",
+  "publisher": {
+    "id": "https://shop.example/#org",
+    "name": "Example Shop",
+    "role": "first_party",
+    "domain": "shop.example",
+    "identifiers": [
+      {
+        "scheme": "cz-ico",
+        "value": "00000001"
+      }
+    ],
+    "contact": "info@shop.example"
+  },
+  "subjects": [
+    {
+      "id": "https://shop.example/#org",
+      "type": "Store",
+      "name": "Example Shop",
+      "url": "https://shop.example/",
+      "identifiers": [
+        {
+          "scheme": "cz-ico",
+          "value": "00000001"
+        }
+      ]
+    }
+  ],
+  "profiles": [
+    "https://soqver.com/spec/so4ag/0.1/retail"
+  ],
+  "claims": [
+    {
+      "id": "https://shop.example/claims/ship-cz-courier",
+      "revision": "1",
+      "subject": "https://shop.example/#org",
+      "property": "https://soqver.com/spec/so4ag/0.1/retail#shippingPrice",
+      "knowledge_state": "known",
+      "scope": {
+        "country": "CZ",
+        "delivery_method": "courier"
+      },
+      "assertion_basis": "publisher_asserted",
+      "valid_from": "2026-11-01T00:00:00Z",
+      "valid_until": "2026-12-31T00:00:00Z",
+      "value": {
+        "type": "money",
+        "amount": "99.00",
+        "currency": "CZK",
+        "vat_included": true
+      },
+      "evidence": [
+        {
+          "url": "https://shop.example/doprava",
+          "observed_at": "2026-11-01T09:00:00Z",
+          "kind": "webpage",
+          "quote": "Kurýr na adresu 99 Kč"
+        }
+      ]
+    },
+    {
+      "id": "https://shop.example/claims/ship-cz-pickup-min",
+      "revision": "1",
+      "subject": "https://shop.example/#org",
+      "property": "https://soqver.com/spec/so4ag/0.1/retail#shippingPrice",
+      "knowledge_state": "known",
+      "scope": {
+        "country": "CZ",
+        "delivery_method": "pickup_point"
+      },
+      "assertion_basis": "publisher_asserted",
+      "valid_from": "2026-11-01T00:00:00Z",
+      "valid_until": "2026-12-31T00:00:00Z",
+      "value": {
+        "type": "money",
+        "amount": "59.00",
+        "currency": "CZK",
+        "bound": "minimum"
+      },
+      "evidence": [
+        {
+          "url": "https://shop.example/doprava",
+          "observed_at": "2026-11-01T09:00:00Z",
+          "kind": "webpage",
+          "quote": "Výdejní místa od 59 Kč"
+        }
+      ]
+    },
+    {
+      "id": "https://shop.example/claims/ship-cz-courier-saturday",
+      "revision": "1",
+      "subject": "https://shop.example/#org",
+      "property": "https://soqver.com/spec/so4ag/0.1/retail#shippingPrice",
+      "knowledge_state": "known",
+      "scope": {
+        "country": "CZ",
+        "delivery_method": "courier",
+        "delivery_day": "saturday"
+      },
+      "assertion_basis": "publisher_asserted",
+      "valid_from": "2026-11-01T00:00:00Z",
+      "valid_until": "2026-12-31T00:00:00Z",
+      "value": {
+        "type": "money",
+        "amount": "149.00",
+        "currency": "CZK"
+      },
+      "evidence": [
+        {
+          "url": "https://shop.example/doprava",
+          "observed_at": "2026-11-01T09:00:00Z",
+          "kind": "webpage"
+        }
+      ]
+    },
+    {
+      "id": "https://shop.example/claims/free-ship-cz",
+      "revision": "1",
+      "subject": "https://shop.example/#org",
+      "property": "https://soqver.com/spec/so4ag/0.1/retail#freeShippingFrom",
+      "knowledge_state": "known",
+      "scope": {
+        "country": "CZ"
+      },
+      "assertion_basis": "publisher_asserted",
+      "valid_from": "2026-11-01T00:00:00Z",
+      "valid_until": "2026-12-31T00:00:00Z",
+      "value": {
+        "type": "money",
+        "amount": "1500.00",
+        "currency": "CZK",
+        "bound": "exact"
+      },
+      "evidence": [
+        {
+          "url": "https://shop.example/doprava",
+          "observed_at": "2026-11-01T09:00:00Z",
+          "kind": "webpage",
+          "quote": "Doprava zdarma od 1 500 Kč"
+        }
+      ]
+    },
+    {
+      "id": "https://shop.example/claims/free-ship-sk",
+      "revision": "1",
+      "subject": "https://shop.example/#org",
+      "property": "https://soqver.com/spec/so4ag/0.1/retail#freeShippingFrom",
+      "knowledge_state": "not_applicable",
+      "scope": {
+        "country": "SK"
+      },
+      "assertion_basis": "publisher_asserted",
+      "valid_from": "2026-11-01T00:00:00Z",
+      "valid_until": "2026-12-31T00:00:00Z",
+      "note": "No free shipping to Slovakia."
+    },
+    {
+      "id": "https://shop.example/claims/delivery-time-cz",
+      "revision": "1",
+      "subject": "https://shop.example/#org",
+      "property": "https://soqver.com/spec/so4ag/0.1/retail#deliveryTime",
+      "knowledge_state": "known",
+      "scope": {
+        "country": "CZ"
+      },
+      "assertion_basis": "publisher_asserted",
+      "valid_from": "2026-11-01T00:00:00Z",
+      "valid_until": "2026-12-31T00:00:00Z",
+      "value": {
+        "type": "text",
+        "value": "2 až 3 pracovní dny",
+        "lang": "cs"
+      },
+      "evidence": [
+        {
+          "url": "https://shop.example/doprava",
+          "observed_at": "2026-11-01T09:00:00Z",
+          "kind": "webpage"
+        }
+      ]
+    },
+    {
+      "id": "https://shop.example/claims/delivery-time-sk",
+      "revision": "1",
+      "subject": "https://shop.example/#org",
+      "property": "https://soqver.com/spec/so4ag/0.1/retail#deliveryTime",
+      "knowledge_state": "known",
+      "scope": {
+        "country": "SK"
+      },
+      "assertion_basis": "publisher_asserted",
+      "valid_from": "2026-11-01T00:00:00Z",
+      "valid_until": "2026-12-31T00:00:00Z",
+      "value": {
+        "type": "text",
+        "value": "3 až 5 pracovních dnů",
+        "lang": "cs"
+      },
+      "evidence": [
+        {
+          "url": "https://shop.example/doprava",
+          "observed_at": "2026-11-01T09:00:00Z",
+          "kind": "webpage"
+        }
+      ],
+      "extensions": {
+        "https://shop.example/ext/customs-hold": {
+          "affects_use": true,
+          "value": {
+            "note": "Parcels may be held at customs; the time does not include the hold."
+          }
+        }
+      }
+    },
+    {
+      "id": "https://shop.example/claims/return-period-old",
+      "revision": "1",
+      "subject": "https://shop.example/#org",
+      "property": "https://soqver.com/spec/so4ag/0.1/retail#returnPeriod",
+      "knowledge_state": "known",
+      "scope": {},
+      "assertion_basis": "publisher_asserted",
+      "valid_from": "2026-08-01T00:00:00Z",
+      "valid_until": "2026-11-15T00:00:00Z",
+      "value": {
+        "type": "quantity",
+        "value": "30",
+        "unit": "d"
+      },
+      "evidence": [
+        {
+          "url": "https://shop.example/vraceni",
+          "observed_at": "2026-11-01T09:00:00Z",
+          "kind": "webpage"
+        }
+      ]
+    },
+    {
+      "id": "https://shop.example/claims/return-period-next",
+      "revision": "1",
+      "subject": "https://shop.example/#org",
+      "property": "https://soqver.com/spec/so4ag/0.1/retail#returnPeriod",
+      "knowledge_state": "known",
+      "scope": {},
+      "assertion_basis": "publisher_asserted",
+      "valid_from": "2026-12-15T00:00:00Z",
+      "valid_until": "2027-03-01T00:00:00Z",
+      "value": {
+        "type": "quantity",
+        "value": "14",
+        "unit": "d"
+      },
+      "evidence": [
+        {
+          "url": "https://shop.example/vraceni",
+          "observed_at": "2026-11-01T09:00:00Z",
+          "kind": "webpage"
+        }
+      ]
+    },
+    {
+      "id": "https://shop.example/claims/warranty",
+      "revision": "1",
+      "subject": "https://shop.example/#org",
+      "property": "https://soqver.com/spec/so4ag/0.1/retail#warrantyPeriod",
+      "knowledge_state": "unknown",
+      "scope": {},
+      "assertion_basis": "publisher_asserted",
+      "valid_from": "2026-11-01T00:00:00Z",
+      "valid_until": "2026-12-31T00:00:00Z"
+    },
+    {
+      "id": "https://shop.example/claims/payment-methods",
+      "revision": "1",
+      "subject": "https://shop.example/#org",
+      "property": "https://soqver.com/spec/so4ag/0.1/retail#paymentMethods",
+      "knowledge_state": "known",
+      "scope": {},
+      "assertion_basis": "independently_reviewed",
+      "valid_from": "2026-11-01T00:00:00Z",
+      "valid_until": "2026-12-31T00:00:00Z",
+      "value": {
+        "type": "enum_set",
+        "values": [
+          "card_online",
+          "bank_transfer",
+          "cash_on_delivery"
+        ]
+      },
+      "evidence": [
+        {
+          "url": "https://shop.example/platba",
+          "observed_at": "2026-11-01T09:00:00Z",
+          "kind": "webpage"
+        }
+      ],
+      "attestations": [
+        {
+          "id": "https://shop.example/claims/payment-methods/attestations/1",
+          "issuer": "https://reviewer.example/#org",
+          "issuer_relation": "independent",
+          "method": "document review",
+          "claim_digest": "sha256:1362c2dd54426a202d1e7d7089f96866d877ddc09cb1f7576a43c783b032500e",
+          "issued_at": "2026-11-05T00:00:00Z",
+          "expires_at": "2027-02-05T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "https://shop.example/claims/payment-methods-business",
+      "revision": "1",
+      "subject": "https://shop.example/#org",
+      "property": "https://soqver.com/spec/so4ag/0.1/retail#paymentMethods",
+      "knowledge_state": "known",
+      "scope": {
+        "customer": "business"
+      },
+      "assertion_basis": "independently_reviewed",
+      "valid_from": "2026-11-01T00:00:00Z",
+      "valid_until": "2026-12-31T00:00:00Z",
+      "value": {
+        "type": "enum_set",
+        "values": [
+          "invoice",
+          "bank_transfer"
+        ]
+      },
+      "evidence": [
+        {
+          "url": "https://shop.example/platba",
+          "observed_at": "2026-11-01T09:00:00Z",
+          "kind": "webpage"
+        }
+      ],
+      "attestations": [
+        {
+          "id": "https://shop.example/claims/payment-methods-business/attestations/1",
+          "issuer": "https://group.example/#org",
+          "issuer_relation": "related_party",
+          "method": "document review",
+          "claim_digest": "sha256:c41e780d11cf857d0d813b8d461a9226527d5a1fd19e1401981b56a6a54c2f58",
+          "issued_at": "2026-11-05T00:00:00Z",
+          "expires_at": "2027-02-05T00:00:00Z"
+        },
+        {
+          "id": "https://shop.example/claims/payment-methods-business/attestations/2",
+          "issuer": "https://reviewer.example/#org",
+          "issuer_relation": "independent",
+          "method": "document review",
+          "claim_digest": "sha256:c41e780d11cf857d0d813b8d461a9226527d5a1fd19e1401981b56a6a54c2f58",
+          "issued_at": "2026-08-01T00:00:00Z",
+          "expires_at": "2026-11-10T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "https://shop.example/claims/cod-fee",
+      "revision": "1",
+      "subject": "https://shop.example/#org",
+      "property": "https://soqver.com/spec/so4ag/0.1/retail#cashOnDeliveryFee",
+      "knowledge_state": "known",
+      "scope": {},
+      "assertion_basis": "publisher_asserted",
+      "valid_from": "2026-11-01T00:00:00Z",
+      "valid_until": "2026-12-31T00:00:00Z",
+      "value": {
+        "type": "money",
+        "amount": "39.00",
+        "currency": "CZK"
+      },
+      "evidence": [
+        {
+          "url": "https://shop.example/platba",
+          "observed_at": "2026-11-01T09:00:00Z",
+          "kind": "webpage"
+        }
+      ],
+      "dispute": {
+        "since": "2026-11-20T10:00:00Z",
+        "conflicting_claims": [
+          "https://aggregator.example/claims/shop-example-cod"
+        ],
+        "note": "An aggregator reports 49 CZK."
+      }
+    },
+    {
+      "id": "https://shop.example/claims/store-pickup",
+      "revision": "1",
+      "subject": "https://shop.example/#org",
+      "property": "https://soqver.com/spec/so4ag/0.1/retail#storePickup",
+      "knowledge_state": "known",
+      "scope": {
+        "branch": "https://shop.example/stores/brno"
+      },
+      "assertion_basis": "publisher_asserted",
+      "valid_from": "2026-11-01T00:00:00Z",
+      "valid_until": "2026-12-31T00:00:00Z",
+      "value": {
+        "type": "boolean",
+        "value": true
+      },
+      "evidence": [
+        {
+          "url": "https://shop.example/prodejny",
+          "observed_at": "2026-11-01T09:00:00Z",
+          "kind": "webpage"
+        }
+      ],
+      "extensions": {
+        "https://shop.example/ext/pickup-note": {
+          "affects_use": false,
+          "value": {
+            "ready_in_hours": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "https://shop.example/claims/branch-brno",
+      "revision": "1",
+      "subject": "https://shop.example/stores/brno",
+      "property": "https://soqver.com/spec/so4ag/0.1/retail#branch",
+      "knowledge_state": "known",
+      "scope": {},
+      "assertion_basis": "publisher_asserted",
+      "valid_from": "2026-11-01T00:00:00Z",
+      "valid_until": "2026-12-31T00:00:00Z",
+      "value": {
+        "type": "place",
+        "name": "Brno",
+        "address": "Example 1, 602 00 Brno",
+        "country": "CZ",
+        "geo": {
+          "lat": 49.195,
+          "lon": 16.608
+        },
+        "opening_hours": "Mo-Fr 09:00-18:00"
+      },
+      "evidence": [
+        {
+          "url": "https://shop.example/prodejny",
+          "observed_at": "2026-11-01T09:00:00Z",
+          "kind": "webpage"
+        }
+      ]
+    },
+    {
+      "id": "https://shop.example/claims/operator",
+      "revision": "1",
+      "subject": "https://shop.example/#org",
+      "property": "https://soqver.com/spec/so4ag/0.1/retail#operator",
+      "knowledge_state": "known",
+      "scope": {},
+      "assertion_basis": "publisher_asserted",
+      "valid_from": "2026-11-01T00:00:00Z",
+      "valid_until": "2026-12-31T00:00:00Z",
+      "value": {
+        "type": "organization",
+        "name": "Example Shop s.r.o.",
+        "identifiers": [
+          {
+            "scheme": "cz-ico",
+            "value": "00000001"
+          }
+        ],
+        "url": "https://shop.example/"
+      },
+      "evidence": [
+        {
+          "url": "https://ares.gov.cz/ekonomicke-subjekty?ico=00000001",
+          "observed_at": "2026-11-01T09:00:00Z",
+          "kind": "registry",
+          "issuer": "ARES"
+        }
+      ]
+    }
+  ],
+  "links": {
+    "html": "https://shop.example/fakta-a-podminky",
+    "corrections": "https://shop.example/kontakt"
+  }
+}

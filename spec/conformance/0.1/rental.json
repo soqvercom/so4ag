@@ -1,0 +1,188 @@
+{
+  "so4ag": "0.1-draft",
+  "id": "https://rental.example/so4ag.json",
+  "revision": "7",
+  "published_at": "2026-11-01T09:30:00Z",
+  "publisher": {
+    "id": "https://rental.example/#org",
+    "name": "Example Rental",
+    "role": "first_party",
+    "domain": "rental.example"
+  },
+  "profiles": [
+    "https://soqver.com/spec/so4ag/0.1/rental"
+  ],
+  "claims": [
+    {
+      "id": "https://rental.example/claims/deposit-economy",
+      "subject": "https://rental.example/#org",
+      "property": "https://soqver.com/spec/so4ag/0.1/rental#refundableDeposit",
+      "knowledge_state": "known",
+      "scope": {
+        "branch": "https://rental.example/branches/prague-airport",
+        "vehicle_class": "economy"
+      },
+      "assertion_basis": "publisher_asserted",
+      "evidence": [
+        {
+          "url": "https://rental.example/terms",
+          "observed_at": "2026-11-01T09:00:00Z",
+          "kind": "webpage"
+        }
+      ],
+      "valid_from": "2026-11-01T00:00:00Z",
+      "valid_until": "2026-12-31T00:00:00Z",
+      "value": {
+        "type": "money",
+        "amount": "10000.00",
+        "currency": "CZK"
+      }
+    },
+    {
+      "id": "https://rental.example/claims/deposit-any-min",
+      "subject": "https://rental.example/#org",
+      "property": "https://soqver.com/spec/so4ag/0.1/rental#refundableDeposit",
+      "knowledge_state": "known",
+      "scope": {
+        "branch": "https://rental.example/branches/prague-airport",
+        "vehicle_class": "any"
+      },
+      "assertion_basis": "publisher_asserted",
+      "evidence": [
+        {
+          "url": "https://rental.example/terms",
+          "observed_at": "2026-11-01T09:00:00Z",
+          "kind": "webpage"
+        }
+      ],
+      "valid_from": "2026-11-01T00:00:00Z",
+      "valid_until": "2026-12-31T00:00:00Z",
+      "value": {
+        "type": "money",
+        "amount": "5000.00",
+        "currency": "CZK",
+        "bound": "minimum"
+      }
+    },
+    {
+      "id": "https://rental.example/claims/mileage-suv",
+      "subject": "https://rental.example/#org",
+      "property": "https://soqver.com/spec/so4ag/0.1/rental#mileageLimit",
+      "knowledge_state": "known",
+      "scope": {
+        "vehicle_class": "suv"
+      },
+      "assertion_basis": "publisher_asserted",
+      "evidence": [
+        {
+          "url": "https://rental.example/terms",
+          "observed_at": "2026-11-01T09:00:00Z",
+          "kind": "webpage"
+        }
+      ],
+      "valid_from": "2026-11-01T00:00:00Z",
+      "valid_until": "2026-12-31T00:00:00Z",
+      "value": {
+        "type": "enum",
+        "value": "unlimited"
+      }
+    },
+    {
+      "id": "https://rental.example/claims/mileage-economy",
+      "subject": "https://rental.example/#org",
+      "property": "https://soqver.com/spec/so4ag/0.1/rental#mileageLimit",
+      "knowledge_state": "known",
+      "scope": {
+        "vehicle_class": "economy"
+      },
+      "assertion_basis": "publisher_asserted",
+      "evidence": [
+        {
+          "url": "https://rental.example/terms",
+          "observed_at": "2026-11-01T09:00:00Z",
+          "kind": "webpage"
+        }
+      ],
+      "valid_from": "2026-11-01T00:00:00Z",
+      "valid_until": "2026-12-31T00:00:00Z",
+      "value": {
+        "type": "quantity",
+        "value": "300",
+        "unit": "km/d"
+      }
+    },
+    {
+      "id": "https://rental.example/claims/min-age-economy",
+      "subject": "https://rental.example/#org",
+      "property": "https://soqver.com/spec/so4ag/0.1/rental#minimumDriverAge",
+      "knowledge_state": "known",
+      "scope": {
+        "vehicle_class": "economy"
+      },
+      "assertion_basis": "publisher_asserted",
+      "evidence": [
+        {
+          "url": "https://rental.example/terms",
+          "observed_at": "2026-11-01T09:00:00Z",
+          "kind": "webpage"
+        }
+      ],
+      "valid_from": "2026-11-01T00:00:00Z",
+      "valid_until": "2026-12-31T00:00:00Z",
+      "value": {
+        "type": "quantity",
+        "value": "21",
+        "unit": "a"
+      }
+    },
+    {
+      "id": "https://rental.example/claims/price-3d-economy",
+      "subject": "https://rental.example/#org",
+      "property": "https://soqver.com/spec/so4ag/0.1/rental#totalPrice",
+      "knowledge_state": "known",
+      "scope": {
+        "branch": "https://rental.example/branches/prague-airport",
+        "vehicle_class": "economy",
+        "rental_days": "3"
+      },
+      "assertion_basis": "publisher_asserted",
+      "evidence": [
+        {
+          "url": "https://rental.example/terms",
+          "observed_at": "2026-11-01T09:00:00Z",
+          "kind": "webpage"
+        }
+      ],
+      "valid_from": "2026-11-28T00:00:00Z",
+      "valid_until": "2026-12-04T00:00:00Z",
+      "value": {
+        "type": "money",
+        "amount": "2970.00",
+        "currency": "CZK",
+        "vat_included": true
+      }
+    },
+    {
+      "id": "https://rental.example/claims/cancellation",
+      "subject": "https://rental.example/#org",
+      "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+      "knowledge_state": "known",
+      "scope": {},
+      "assertion_basis": "publisher_asserted",
+      "evidence": [
+        {
+          "url": "https://rental.example/terms",
+          "observed_at": "2026-11-01T09:00:00Z",
+          "kind": "webpage"
+        }
+      ],
+      "valid_from": "2026-11-01T00:00:00Z",
+      "valid_until": "2026-12-31T00:00:00Z",
+      "value": {
+        "type": "quantity",
+        "value": "48",
+        "unit": "h"
+      }
+    }
+  ]
+}

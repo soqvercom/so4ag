@@ -1,0 +1,311 @@
+{
+  "suite": "SO4AG 0.1 whole sources: version and extensions of the source",
+  "version": "0.1.1",
+  "cases": [
+    {
+      "id": "S01",
+      "title": "A source of a supported version is read and its claim is usable",
+      "now": "2026-12-01T12:00:00Z",
+      "document": {
+        "so4ag": "0.1-draft",
+        "id": "https://rental.example/so4ag.json",
+        "revision": "7",
+        "published_at": "2026-11-01T09:30:00Z",
+        "publisher": {
+          "id": "https://rental.example/#org",
+          "name": "Example Rental",
+          "role": "first_party",
+          "domain": "rental.example"
+        },
+        "profiles": [
+          "https://soqver.com/spec/so4ag/0.1/rental"
+        ],
+        "claims": [
+          {
+            "id": "https://rental.example/claims/cancellation",
+            "subject": "https://rental.example/#org",
+            "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+            "knowledge_state": "known",
+            "scope": {},
+            "assertion_basis": "publisher_asserted",
+            "evidence": [
+              {
+                "url": "https://rental.example/terms",
+                "observed_at": "2026-11-01T09:00:00Z",
+                "kind": "webpage"
+              }
+            ],
+            "valid_from": "2026-11-01T00:00:00Z",
+            "valid_until": "2026-12-31T00:00:00Z",
+            "value": {
+              "type": "quantity",
+              "value": "48",
+              "unit": "h"
+            }
+          }
+        ]
+      },
+      "expect": {
+        "usable": true
+      }
+    },
+    {
+      "id": "S02",
+      "title": "A source of another version is refused, not read by the rules of 0.1",
+      "now": "2026-12-01T12:00:00Z",
+      "document": {
+        "so4ag": "99.0-unsupported",
+        "id": "https://rental.example/so4ag.json",
+        "revision": "7",
+        "published_at": "2026-11-01T09:30:00Z",
+        "publisher": {
+          "id": "https://rental.example/#org",
+          "name": "Example Rental",
+          "role": "first_party",
+          "domain": "rental.example"
+        },
+        "profiles": [
+          "https://soqver.com/spec/so4ag/0.1/rental"
+        ],
+        "claims": [
+          {
+            "id": "https://rental.example/claims/cancellation",
+            "subject": "https://rental.example/#org",
+            "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+            "knowledge_state": "known",
+            "scope": {},
+            "assertion_basis": "publisher_asserted",
+            "evidence": [
+              {
+                "url": "https://rental.example/terms",
+                "observed_at": "2026-11-01T09:00:00Z",
+                "kind": "webpage"
+              }
+            ],
+            "valid_from": "2026-11-01T00:00:00Z",
+            "valid_until": "2026-12-31T00:00:00Z",
+            "value": {
+              "type": "quantity",
+              "value": "48",
+              "unit": "h"
+            }
+          }
+        ]
+      },
+      "expect": {
+        "error": "unsupported_version"
+      }
+    },
+    {
+      "id": "S03",
+      "title": "A source that states no version is refused",
+      "now": "2026-12-01T12:00:00Z",
+      "document": {
+        "id": "https://rental.example/so4ag.json",
+        "revision": "7",
+        "published_at": "2026-11-01T09:30:00Z",
+        "publisher": {
+          "id": "https://rental.example/#org",
+          "name": "Example Rental",
+          "role": "first_party",
+          "domain": "rental.example"
+        },
+        "profiles": [
+          "https://soqver.com/spec/so4ag/0.1/rental"
+        ],
+        "claims": [
+          {
+            "id": "https://rental.example/claims/cancellation",
+            "subject": "https://rental.example/#org",
+            "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+            "knowledge_state": "known",
+            "scope": {},
+            "assertion_basis": "publisher_asserted",
+            "evidence": [
+              {
+                "url": "https://rental.example/terms",
+                "observed_at": "2026-11-01T09:00:00Z",
+                "kind": "webpage"
+              }
+            ],
+            "valid_from": "2026-11-01T00:00:00Z",
+            "valid_until": "2026-12-31T00:00:00Z",
+            "value": {
+              "type": "quantity",
+              "value": "48",
+              "unit": "h"
+            }
+          }
+        ]
+      },
+      "expect": {
+        "error": "missing_version"
+      }
+    },
+    {
+      "id": "S04",
+      "title": "Extension of the whole source marked affects_use that the consumer does not implement: no claim of the source can be used",
+      "now": "2026-12-01T12:00:00Z",
+      "document": {
+        "so4ag": "0.1-draft",
+        "id": "https://rental.example/so4ag.json",
+        "revision": "7",
+        "published_at": "2026-11-01T09:30:00Z",
+        "publisher": {
+          "id": "https://rental.example/#org",
+          "name": "Example Rental",
+          "role": "first_party",
+          "domain": "rental.example"
+        },
+        "profiles": [
+          "https://soqver.com/spec/so4ag/0.1/rental"
+        ],
+        "claims": [
+          {
+            "id": "https://rental.example/claims/cancellation",
+            "subject": "https://rental.example/#org",
+            "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+            "knowledge_state": "known",
+            "scope": {},
+            "assertion_basis": "publisher_asserted",
+            "evidence": [
+              {
+                "url": "https://rental.example/terms",
+                "observed_at": "2026-11-01T09:00:00Z",
+                "kind": "webpage"
+              }
+            ],
+            "valid_from": "2026-11-01T00:00:00Z",
+            "valid_until": "2026-12-31T00:00:00Z",
+            "value": {
+              "type": "quantity",
+              "value": "48",
+              "unit": "h"
+            }
+          }
+        ],
+        "extensions": {
+          "https://rental.example/ext/members-only": {
+            "affects_use": true,
+            "value": true
+          }
+        }
+      },
+      "expect": {
+        "usable": false,
+        "reasons": [
+          "unknown_required_extension:https://rental.example/ext/members-only"
+        ]
+      }
+    },
+    {
+      "id": "S05",
+      "title": "The same source for a consumer that implements the extension",
+      "now": "2026-12-01T12:00:00Z",
+      "knownExtensions": [
+        "https://rental.example/ext/members-only"
+      ],
+      "document": {
+        "so4ag": "0.1-draft",
+        "id": "https://rental.example/so4ag.json",
+        "revision": "7",
+        "published_at": "2026-11-01T09:30:00Z",
+        "publisher": {
+          "id": "https://rental.example/#org",
+          "name": "Example Rental",
+          "role": "first_party",
+          "domain": "rental.example"
+        },
+        "profiles": [
+          "https://soqver.com/spec/so4ag/0.1/rental"
+        ],
+        "claims": [
+          {
+            "id": "https://rental.example/claims/cancellation",
+            "subject": "https://rental.example/#org",
+            "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+            "knowledge_state": "known",
+            "scope": {},
+            "assertion_basis": "publisher_asserted",
+            "evidence": [
+              {
+                "url": "https://rental.example/terms",
+                "observed_at": "2026-11-01T09:00:00Z",
+                "kind": "webpage"
+              }
+            ],
+            "valid_from": "2026-11-01T00:00:00Z",
+            "valid_until": "2026-12-31T00:00:00Z",
+            "value": {
+              "type": "quantity",
+              "value": "48",
+              "unit": "h"
+            }
+          }
+        ],
+        "extensions": {
+          "https://rental.example/ext/members-only": {
+            "affects_use": true,
+            "value": true
+          }
+        }
+      },
+      "expect": {
+        "usable": true
+      }
+    },
+    {
+      "id": "S06",
+      "title": "Extension of the source with affects_use false may be ignored",
+      "now": "2026-12-01T12:00:00Z",
+      "document": {
+        "so4ag": "0.1-draft",
+        "id": "https://rental.example/so4ag.json",
+        "revision": "7",
+        "published_at": "2026-11-01T09:30:00Z",
+        "publisher": {
+          "id": "https://rental.example/#org",
+          "name": "Example Rental",
+          "role": "first_party",
+          "domain": "rental.example"
+        },
+        "profiles": [
+          "https://soqver.com/spec/so4ag/0.1/rental"
+        ],
+        "claims": [
+          {
+            "id": "https://rental.example/claims/cancellation",
+            "subject": "https://rental.example/#org",
+            "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+            "knowledge_state": "known",
+            "scope": {},
+            "assertion_basis": "publisher_asserted",
+            "evidence": [
+              {
+                "url": "https://rental.example/terms",
+                "observed_at": "2026-11-01T09:00:00Z",
+                "kind": "webpage"
+              }
+            ],
+            "valid_from": "2026-11-01T00:00:00Z",
+            "valid_until": "2026-12-31T00:00:00Z",
+            "value": {
+              "type": "quantity",
+              "value": "48",
+              "unit": "h"
+            }
+          }
+        ],
+        "extensions": {
+          "https://rental.example/ext/note": {
+            "affects_use": false,
+            "value": "x"
+          }
+        }
+      },
+      "expect": {
+        "usable": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,112 @@
+# SO4AG 0.1 — Source Objects for AGents (draft)
+
+Status: **working draft 0.1**, 2026-11-20, revised 2026-11-21 (see Changelog). Not a W3C, IETF or platform standard. Feedback welcome.
+Editor: SOQVER project (MAEX). Text licence: CC BY 4.0. Reference code: Apache-2.0. No fee is required to implement.
+
+The namespace is `https://soqver.com/spec/so4ag/0.1/`. Until 20 November 2026 the draft used `https://soqver.botrento.com/spec/so4ag/0.1/`; that host redirects permanently (301) and consumers MUST treat both namespaces as equivalent for 0.1.
+
+## 1. Purpose
+
+SO4AG defines how an organisation hands an agent a **specific fact** together with its **meaning, conditions, origin and validity**, so that the agent can decide whether it may use the fact for a given task, and why not if it may not.
+
+SO4AG is a data profile over existing web technology. HTML stays for people, citations and search engines. SO4AG does not certify truth: a valid manifest proves structure; a signature proves origin and integrity; only a scoped attestation states that someone reviewed specific facts.
+
+Keywords MUST, MUST NOT, SHOULD and MAY are used as in RFC 2119.
+
+## 2. Profiles
+
+| Profile | Content |
+|---|---|
+| **Core** | Source identity, publisher, claims with value or explicit unknown, meaning, scope, origin, revision and validity. Static JSON over HTTPS. |
+| **Evidence** | Attestations bound to an exact claim digest, with issuer, method, expiry and status. |
+| **Live** | Short-lived claims for time-sensitive data (availability, quotes), validity typically ≤ 1 hour. |
+
+Domain profiles (e.g. **Rental 0.1**) define properties, allowed value types, units, enumerations, required scope keys and maximum validity.
+
+## 3. Publication and discovery
+
+1. A publisher serves the manifest as `application/json` over HTTPS. Recommended location: `/so4ag.json` on the publisher's domain, or on a delegated subdomain. This location is a convention of this draft; no `/.well-known/` URI, media type or DNS record is registered.
+2. Human pages SHOULD link to it: `<link rel="describedby" type="application/json" href="/so4ag.json" title="SO4AG source manifest">`.
+3. A hosted service MAY publish on behalf of the publisher. Changing the host MUST NOT change the source `id`, claim ids or history.
+4. Registries are optional indexes. A consumer MAY read directly from the publisher's domain.
+
+## 4. Manifest
+
+Required: `so4ag` (`"0.1-draft"`), `id`, `revision`, `published_at`, `publisher`, `claims`. Optional: `profiles`, `subjects`, `links`, `extensions`. The JSON Schema `schema.json` is normative for structure.
+
+`publisher.role`:
+- `first_party` — the organisation states facts about itself;
+- `aggregator` — a third party collects facts about others (e.g. a comparison portal) and MUST NOT present itself as the operator;
+- `related_party` — the publisher is related to the subject (same group, affiliate, shared owner); `related_to` SHOULD list the relation;
+- `reviewer` — the publisher only issues reviews or attestations.
+
+## 5. Claims
+
+A claim states one property of one subject under one scope.
+
+| Field | Rule |
+|---|---|
+| `id` | Stable URI. A changed value keeps the id and gets a new `revision`. |
+| `subject` | URI of the thing described (organisation, branch, offer). |
+| `property` | Absolute URI defined by a profile. Unknown properties MAY be ignored. |
+| `knowledge_state` | `known`, `unknown` or `not_applicable`. **Unknown is never zero, empty or "no limit".** Only `known` carries a `value`, and `known` MUST carry at least one `evidence` item. |
+| `value` | Typed: `money` (decimal string + ISO 4217 code in use; the amount is written with exactly the number of decimals of the currency: `99.00` CZK, `1500` JPY, `10.125` KWD; optional `bound`: `exact` or `minimum`; a `minimum` amount MUST be presented as a starting amount and never as the exact amount), `quantity` (decimal string + unit), `boolean`, `text` (optional `lang`: a BCP 47 tag of the form language, optional script, optional region, e.g. `cs`, `pt-BR`, `zh-Hant-TW`), `enum`, `enum_set`, `organization`, `place` (optional `opening_hours` in the schema.org form: `Mo-Fr 09:00-18:00; Sa 09:00-12:00`). |
+| `scope` | String map of conditions. **Every scope key restricts the claim.** A claim applies only where all scope keys match the task. The reserved value `any` states explicitly that the claim applies to every value of that key (e.g. one deposit for all branches). |
+| `assertion_basis` | `publisher_asserted` (the publisher says so), `source_correlated` (matched against an independent source such as a registry or the operator's own terms), `independently_reviewed` (an attestation exists). |
+| `evidence` | URL, `observed_at`, optional kind, issuer, `quote` (verbatim excerpt that states the value) and digest. Re-downloading a page is a new observation, not a new review. |
+| `valid_from`, `valid_until` | Required. `valid_until` MUST be later than `valid_from` and SHOULD respect the profile's `max_validity`. |
+| `dispute` | Present when a conflicting statement is known. |
+| `attestations` | Evidence profile, section 7. |
+
+Status is not a single list. Knowledge, basis, validity, dispute and attestation status are independent axes: a claim can be publisher asserted, expired and disputed at the same time.
+
+## 6. Consumer rules
+
+A consumer that uses a claim to answer a user MUST:
+
+1. check the `so4ag` version before anything else and refuse a document whose version it does not implement, or that states none. A refused document yields no usable claim: it is never read by the rules of another version. Being able to parse the JSON is not a successful reading of a source;
+2. check that subject, property and **all** scope keys match the task. A scope key the consumer does not understand means *cannot safely compare*: the claim MUST NOT be used as if it applied;
+3. treat a claim as current only when `valid_from ≤ now < valid_until`; otherwise it is historical and MUST NOT be presented as current;
+4. return `unknown` / `not_applicable` as such and never fill in a value;
+5. mention a `dispute` when present and, for important tasks, ask for current confirmation;
+6. if verification is required, check the attestation issuer against its own trust policy, the `claim_digest`, the time (`issued_at ≤ now < expires_at`) and the status. The trust policy is the consumer's own list of issuers. A consumer that requires verification and has no such list MUST treat every claim as not reviewed: a matching digest ties an attestation to the wording of a claim and proves nothing about who issued it, and an `issuer_relation` written in the manifest is a statement of the publisher, not a proof. An unreachable status after the allowed cache period means *verification status unknown* — neither false nor verified;
+7. cite the source URL and claim revision;
+8. never take instructions or permissions from text inside a manifest; actions go only through separate authorised interfaces.
+
+Extensions: keys are absolute URIs with `{"affects_use": bool, "value": …}`. A consumer MAY ignore extensions with `affects_use: false` and MUST treat an unknown extension with `affects_use: true` as *cannot safely use*. This holds for the `extensions` of a claim and for the `extensions` of the whole manifest, which apply to every claim in it. The rule belongs to the consumer: a validator accepts such a manifest as well-formed.
+
+## 7. Evidence profile
+
+`claim_digest` = `sha256:` + lowercase hex SHA-256 of the RFC 8785 (JCS) canonical JSON of the claim **without** the `attestations` field. Numbers are written as ECMAScript writes them (`0.000001`, `1e-7`, `1e+21`, `-0` as `0`); the conformance suite carries test vectors (`canonical.json`), and two implementations must produce the same bytes. A changed claim therefore invalidates old attestations automatically.
+
+An attestation states issuer (URI), `issuer_relation` (`independent`, `related_party`, `first_party`), method, issue and expiry time and optionally a `status_url` and a `credential_url` pointing to a W3C Verifiable Credential 2.0. Keys are never trusted because they are embedded in the same manifest: they MUST be bound to the issuer and to the consumer's trust list. Revocation SHOULD use W3C Bitstring Status List. The signature profile will be fixed in 0.2 with test vectors.
+
+## 8. Live profile
+
+Live claims use the same structure with short validity (profile `max_validity`, e.g. `PT1H`). A publisher without a live connection MUST publish such properties as `unknown`. Reading a live claim never creates a reservation, payment or data transfer.
+
+## 9. Security and privacy
+
+Manifests are untrusted input: limit size (recommended 5 MB) and time; do not follow redirects to private addresses; treat all text as data. Public manifests MUST NOT contain personal data of customers, contracts or non-public evidence.
+
+## 10. Relation to other work
+
+SO4AG reuses schema.org vocabulary where meanings match, maps provenance to W3C PROV-O, uses W3C Verifiable Credentials 2.0 for optional attestations, and is reachable via MCP or plain HTTPS. It does not replace AgentReady, llms.txt, NLWeb, WebMCP, A2A, UCP or ACP. WCA (expired individual Internet-Draft) is related work only.
+
+## 11. Conformance
+
+- **SO4AG Core 0.1 compatible**: the manifest passes the JSON Schema and the semantic checks of the reference validator (`so4ag-validate`), including the rules of each declared domain profile.
+- Compatibility is a technical statement and says nothing about truth or review.
+
+## Changelog
+
+- 0.1-draft, revision of 2026-11-21, after an external review. Structure: an amount carries the decimals of its currency instead of always two (two-decimal currencies are unchanged); the currency must be an ISO 4217 code in use; `lang` accepts a script and a region. Consumer rules, stated more exactly and now enforced by both readers: an unsupported or missing version is refused; an unknown extension with `affects_use: true` on a claim or on the manifest makes the claim unusable; verification without the consumer's own list of trusted issuers accepts nothing; an attestation counts only between `issued_at` and `expires_at`. The Python reader wrote small numbers in another form than RFC 8785 requires (`1e-06`); corrected, with test vectors.
+- 0.1-draft (2026-11-20): money `bound` (`minimum` for starting amounts) and Rental scope key `vehicle`, both found necessary when a rental states the deposit per car.
+- 0.1-draft (2026-11-20): namespace moved to soqver.com (old host stays equivalent).
+- 0.1-draft (2026-11-20): first draft, Core, Evidence and Live, Rental 0.1 profile. Same day: reserved scope value `any`, `evidence.quote`.
+
+## Open issues for 0.2
+
+- money ranges (deposit 5 000–25 000 CZK by vehicle), scope key for a specific vehicle model
+- driving licence held for N years, cancellation with a fee, additional driver allowed vs. fee
+- payment code `card_unspecified` (site says "card" without credit/debit)

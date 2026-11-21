@@ -1,0 +1,319 @@
+{
+  "so4ag": "0.1-draft",
+  "id": "https://soqver.com/s/manufaktura/so4ag.json",
+  "revision": "20261120.1",
+  "published_at": "2026-11-20T13:51:39Z",
+  "publisher": {
+    "id": "https://soqver.com/#soqver",
+    "name": "SOQVER (proposal from the public website, not confirmed by the company)",
+    "role": "aggregator",
+    "contact": "info@soqver.com"
+  },
+  "subjects": [
+    {
+      "id": "https://manufaktura.cz/",
+      "type": "Store",
+      "name": "MANUFAKTURA s.r.o.",
+      "url": "https://manufaktura.cz/",
+      "identifiers": [
+        {
+          "scheme": "cz-ico",
+          "value": "03127371"
+        }
+      ]
+    }
+  ],
+  "profiles": [
+    "https://soqver.com/spec/so4ag/0.1/retail"
+  ],
+  "claims": [
+    {
+      "id": "https://soqver.com/s/manufaktura/claims/C-C3FA78C0",
+      "revision": "1",
+      "subject": "https://soqver.com/s/manufaktura/pobocky/1",
+      "property": "https://soqver.com/spec/so4ag/0.1/retail#branch",
+      "knowledge_state": "known",
+      "scope": {},
+      "assertion_basis": "source_correlated",
+      "valid_from": "2026-11-20T13:51:39Z",
+      "valid_until": "2026-12-20T13:51:39Z",
+      "value": {
+        "type": "place",
+        "name": "Celetná 11",
+        "country": "CZ",
+        "address": "Celetná 11, 11000 Praha"
+      },
+      "evidence": [
+        {
+          "url": "https://manufaktura.cz/prodejny/",
+          "observed_at": "2026-11-20T13:51:02Z",
+          "kind": "webpage",
+          "quote": "Celetná 11, 11000 Praha"
+        }
+      ]
+    },
+    {
+      "id": "https://soqver.com/s/manufaktura/claims/C-09957941",
+      "revision": "1",
+      "subject": "https://soqver.com/s/manufaktura/pobocky/2",
+      "property": "https://soqver.com/spec/so4ag/0.1/retail#branch",
+      "knowledge_state": "known",
+      "scope": {},
+      "assertion_basis": "source_correlated",
+      "valid_from": "2026-11-20T13:51:39Z",
+      "valid_until": "2026-12-20T13:51:39Z",
+      "value": {
+        "type": "place",
+        "name": "Melantrichova 17",
+        "country": "CZ",
+        "address": "Melantrichova 17, 11000 Praha"
+      },
+      "evidence": [
+        {
+          "url": "https://manufaktura.cz/prodejny/",
+          "observed_at": "2026-11-20T13:51:02Z",
+          "kind": "webpage",
+          "quote": "Melantrichova 17\n Melantrichova 17, 11000 Praha"
+        }
+      ]
+    },
+    {
+      "id": "https://soqver.com/s/manufaktura/claims/C-4513BC15",
+      "revision": "1",
+      "subject": "https://manufaktura.cz/",
+      "property": "https://soqver.com/spec/so4ag/0.1/retail#cashOnDeliveryFee",
+      "knowledge_state": "known",
+      "scope": {},
+      "assertion_basis": "source_correlated",
+      "valid_from": "2026-11-20T13:51:39Z",
+      "valid_until": "2026-12-20T13:51:39Z",
+      "value": {
+        "type": "money",
+        "amount": "50.00",
+        "currency": "CZK"
+      },
+      "evidence": [
+        {
+          "url": "https://manufaktura.cz/doprava-a-platba/",
+          "observed_at": "2026-11-20T13:51:02Z",
+          "kind": "webpage",
+          "quote": "Dobírka\n+ 50 Kč\nPlatíte v hotovosti při převzetí zásilky."
+        }
+      ],
+      "note": "Taken from the company’s public website, not yet confirmed by the company."
+    },
+    {
+      "id": "https://soqver.com/s/manufaktura/claims/C-E2DFC9B2",
+      "revision": "1",
+      "subject": "https://manufaktura.cz/",
+      "property": "https://soqver.com/spec/so4ag/0.1/retail#deliveryTime",
+      "knowledge_state": "unknown",
+      "scope": {
+        "country": "CZ"
+      },
+      "assertion_basis": "source_correlated",
+      "valid_from": "2026-11-20T13:51:39Z",
+      "valid_until": "2026-12-20T13:51:39Z",
+      "note": "We did not find this on the company’s public website."
+    },
+    {
+      "id": "https://soqver.com/s/manufaktura/claims/C-E06DE0C4",
+      "revision": "1",
+      "subject": "https://manufaktura.cz/",
+      "property": "https://soqver.com/spec/so4ag/0.1/retail#freeShippingFrom",
+      "knowledge_state": "known",
+      "scope": {
+        "country": "CZ"
+      },
+      "assertion_basis": "source_correlated",
+      "valid_from": "2026-11-20T13:51:39Z",
+      "valid_until": "2026-12-20T13:51:39Z",
+      "value": {
+        "type": "money",
+        "amount": "1400.00",
+        "currency": "CZK"
+      },
+      "evidence": [
+        {
+          "url": "https://manufaktura.cz/doprava-a-platba/",
+          "observed_at": "2026-11-20T13:51:02Z",
+          "kind": "webpage",
+          "quote": "Dopravu zdarma po ČR získáte při objednávce nad 1 400 Kč."
+        }
+      ],
+      "note": "Taken from the company’s public website, not yet confirmed by the company."
+    },
+    {
+      "id": "https://soqver.com/s/manufaktura/claims/C-2D5DD02A",
+      "revision": "1",
+      "subject": "https://manufaktura.cz/",
+      "property": "https://soqver.com/spec/so4ag/0.1/retail#operator",
+      "knowledge_state": "known",
+      "scope": {},
+      "assertion_basis": "source_correlated",
+      "valid_from": "2026-11-20T13:51:39Z",
+      "valid_until": "2026-12-20T13:51:39Z",
+      "value": {
+        "type": "organization",
+        "name": "MANUFAKTURA s.r.o.",
+        "identifiers": [
+          {
+            "scheme": "cz-ico",
+            "value": "03127371"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "url": "https://manufaktura.cz/obchodni-podminky/",
+          "observed_at": "2026-11-20T13:51:02Z",
+          "kind": "webpage",
+          "quote": "Jsme MANUFAKTURA s.r.o., se sídlem Melantrichova 970/17, Staré Město, Praha 1, 110 00, IČ 031 27 371"
+        },
+        {
+          "url": "https://ares.gov.cz/ekonomicke-subjekty?ico=03127371",
+          "observed_at": "2026-11-20T13:51:02Z",
+          "kind": "registry",
+          "issuer": "ARES (Ministerstvo financí ČR)"
+        }
+      ]
+    },
+    {
+      "id": "https://soqver.com/s/manufaktura/claims/C-8FEC6B17",
+      "revision": "1",
+      "subject": "https://manufaktura.cz/",
+      "property": "https://soqver.com/spec/so4ag/0.1/retail#paymentMethods",
+      "knowledge_state": "known",
+      "scope": {},
+      "assertion_basis": "source_correlated",
+      "valid_from": "2026-11-20T13:51:39Z",
+      "valid_until": "2026-12-20T13:51:39Z",
+      "value": {
+        "type": "enum_set",
+        "values": [
+          "card_online",
+          "google_pay"
+        ]
+      },
+      "evidence": [
+        {
+          "url": "https://manufaktura.cz/doprava-a-platba/",
+          "observed_at": "2026-11-20T13:51:02Z",
+          "kind": "webpage",
+          "quote": "Kartou nebo Google Pay (ThePay)"
+        }
+      ],
+      "note": "Taken from the company’s public website, not yet confirmed by the company."
+    },
+    {
+      "id": "https://soqver.com/s/manufaktura/claims/C-89F73E67",
+      "revision": "1",
+      "subject": "https://manufaktura.cz/",
+      "property": "https://soqver.com/spec/so4ag/0.1/retail#returnPeriod",
+      "knowledge_state": "unknown",
+      "scope": {},
+      "assertion_basis": "source_correlated",
+      "valid_from": "2026-11-20T13:51:39Z",
+      "valid_until": "2026-12-20T13:51:39Z",
+      "note": "We did not find this on the company’s public website."
+    },
+    {
+      "id": "https://soqver.com/s/manufaktura/claims/C-7227F9F8",
+      "revision": "1",
+      "subject": "https://manufaktura.cz/",
+      "property": "https://soqver.com/spec/so4ag/0.1/retail#shippingPrice",
+      "knowledge_state": "known",
+      "scope": {
+        "country": "CZ",
+        "delivery_method": "courier"
+      },
+      "assertion_basis": "source_correlated",
+      "valid_from": "2026-11-20T13:51:39Z",
+      "valid_until": "2026-12-20T13:51:39Z",
+      "value": {
+        "type": "money",
+        "amount": "119.00",
+        "currency": "CZK"
+      },
+      "evidence": [
+        {
+          "url": "https://manufaktura.cz/doprava-a-platba/",
+          "observed_at": "2026-11-20T13:51:02Z",
+          "kind": "webpage",
+          "quote": "DPD\nNa adresu 119 Kč · Výdejní místo* 65 Kč · pouze ČR"
+        }
+      ],
+      "note": "Taken from the company’s public website, not yet confirmed by the company."
+    },
+    {
+      "id": "https://soqver.com/s/manufaktura/claims/C-A15DECB9",
+      "revision": "1",
+      "subject": "https://manufaktura.cz/",
+      "property": "https://soqver.com/spec/so4ag/0.1/retail#shippingPrice",
+      "knowledge_state": "known",
+      "scope": {
+        "country": "CZ",
+        "delivery_method": "pickup_point"
+      },
+      "assertion_basis": "source_correlated",
+      "valid_from": "2026-11-20T13:51:39Z",
+      "valid_until": "2026-12-20T13:51:39Z",
+      "value": {
+        "type": "money",
+        "amount": "65.00",
+        "currency": "CZK"
+      },
+      "evidence": [
+        {
+          "url": "https://manufaktura.cz/doprava-a-platba/",
+          "observed_at": "2026-11-20T13:51:02Z",
+          "kind": "webpage",
+          "quote": "DPD\nNa adresu 119 Kč · Výdejní místo* 65 Kč · pouze ČR"
+        }
+      ],
+      "note": "Taken from the company’s public website, not yet confirmed by the company."
+    },
+    {
+      "id": "https://soqver.com/s/manufaktura/claims/C-7BCD4A50",
+      "revision": "1",
+      "subject": "https://manufaktura.cz/",
+      "property": "https://soqver.com/spec/so4ag/0.1/retail#storePickup",
+      "knowledge_state": "known",
+      "scope": {},
+      "assertion_basis": "source_correlated",
+      "valid_from": "2026-11-20T13:51:39Z",
+      "valid_until": "2026-12-20T13:51:39Z",
+      "value": {
+        "type": "boolean",
+        "value": true
+      },
+      "evidence": [
+        {
+          "url": "https://manufaktura.cz/doprava-a-platba/",
+          "observed_at": "2026-11-20T13:51:02Z",
+          "kind": "webpage",
+          "quote": "Osobní odběr v prodejně Manufaktura\nZdarma · pouze ČR"
+        }
+      ],
+      "note": "Taken from the company’s public website, not yet confirmed by the company."
+    },
+    {
+      "id": "https://soqver.com/s/manufaktura/claims/C-CE35D80B",
+      "revision": "1",
+      "subject": "https://manufaktura.cz/",
+      "property": "https://soqver.com/spec/so4ag/0.1/retail#warrantyPeriod",
+      "knowledge_state": "unknown",
+      "scope": {},
+      "assertion_basis": "source_correlated",
+      "valid_from": "2026-11-20T13:51:39Z",
+      "valid_until": "2026-12-20T13:51:39Z",
+      "note": "We did not find this on the company’s public website."
+    }
+  ],
+  "links": {
+    "html": "https://soqver.com/s/manufaktura/",
+    "markdown": "https://soqver.com/s/manufaktura/index.md",
+    "mcp": "https://soqver.com/mcp",
+    "corrections": "https://soqver.com/s/manufaktura/#opravy"
+  }
+}

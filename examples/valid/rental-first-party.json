@@ -1,0 +1,57 @@
+{
+  "so4ag": "0.1-draft",
+  "id": "https://rental.example/so4ag.json",
+  "revision": "2026-11-20.1",
+  "published_at": "2026-11-19T20:05:00Z",
+  "publisher": {
+    "id": "https://rental.example/#org",
+    "name": "Example Rental s.r.o.",
+    "role": "first_party",
+    "domain": "rental.example",
+    "identifiers": [{"scheme": "cz-ico", "value": "00000000"}]
+  },
+  "profiles": ["https://soqver.com/spec/so4ag/0.1/rental"],
+  "subjects": [
+    {"id": "https://rental.example/#org", "type": "AutoRental", "name": "Example Rental"},
+    {"id": "https://rental.example/branches/prague-airport", "type": "Place", "name": "Prague Airport"}
+  ],
+  "claims": [
+    {
+      "id": "https://rental.example/claims/deposit-economy-airport",
+      "revision": "3",
+      "subject": "https://rental.example/#org",
+      "property": "https://soqver.com/spec/so4ag/0.1/rental#refundableDeposit",
+      "knowledge_state": "known",
+      "value": {"type": "money", "amount": "10000.00", "currency": "CZK"},
+      "scope": {"branch": "https://rental.example/branches/prague-airport", "vehicle_class": "economy"},
+      "assertion_basis": "publisher_asserted",
+      "evidence": [{"url": "https://rental.example/terms#deposit", "observed_at": "2026-11-19T20:00:00Z", "kind": "webpage"}],
+      "valid_from": "2026-11-20T00:00:00Z",
+      "valid_until": "2026-12-20T00:00:00Z"
+    },
+    {
+      "id": "https://rental.example/claims/payment-deposit",
+      "subject": "https://rental.example/#org",
+      "property": "https://soqver.com/spec/so4ag/0.1/rental#acceptedPaymentMethods",
+      "knowledge_state": "known",
+      "value": {"type": "enum_set", "values": ["credit_card", "debit_card"]},
+      "scope": {"payment_purpose": "deposit", "vehicle_class": "economy"},
+      "assertion_basis": "publisher_asserted",
+      "evidence": [{"url": "https://rental.example/terms#payment", "observed_at": "2026-11-19T20:00:00Z"}],
+      "valid_from": "2026-11-20T00:00:00Z",
+      "valid_until": "2027-01-20T00:00:00Z"
+    },
+    {
+      "id": "https://rental.example/claims/availability-economy-airport",
+      "subject": "https://rental.example/#org",
+      "property": "https://soqver.com/spec/so4ag/0.1/rental#availability",
+      "knowledge_state": "unknown",
+      "scope": {"branch": "https://rental.example/branches/prague-airport", "vehicle_class": "economy", "period_from": "2026-11-27T09:00:00Z", "period_until": "2026-11-29T18:00:00Z"},
+      "assertion_basis": "publisher_asserted",
+      "note": "No live connection; confirm with the branch.",
+      "valid_from": "2026-11-20T08:00:00Z",
+      "valid_until": "2026-11-20T09:00:00Z"
+    }
+  ],
+  "links": {"html": "https://rental.example/agent-source", "markdown": "https://rental.example/agent-source.md"}
+}

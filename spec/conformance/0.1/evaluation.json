@@ -1,0 +1,833 @@
+{
+  "suite": "SO4AG 0.1 consumer rules",
+  "version": "0.1.1",
+  "cases": [
+    {
+      "id": "E01",
+      "title": "Scope matches, claim is current: usable",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/ship-cz-courier",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#shippingPrice",
+        "scope": {
+          "country": "CZ",
+          "delivery_method": "courier"
+        }
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": true,
+        "reasons": [],
+        "value": {
+          "type": "money",
+          "amount": "99.00",
+          "currency": "CZK",
+          "vat_included": true
+        }
+      }
+    },
+    {
+      "id": "E02",
+      "title": "Task asks for another country: not usable",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/ship-cz-courier",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#shippingPrice",
+        "scope": {
+          "country": "SK",
+          "delivery_method": "courier"
+        }
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": false,
+        "reasons": [
+          "scope_mismatch:country"
+        ],
+        "value": null
+      }
+    },
+    {
+      "id": "E03",
+      "title": "Task does not say the delivery method the claim is limited to: not usable",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/ship-cz-courier",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#shippingPrice",
+        "scope": {
+          "country": "CZ"
+        }
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": false,
+        "reasons": [
+          "scope_not_in_task:delivery_method"
+        ],
+        "value": null
+      }
+    },
+    {
+      "id": "E04",
+      "title": "Task is narrower than the claim (extra task keys): usable",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/free-ship-cz",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#freeShippingFrom",
+        "scope": {
+          "country": "CZ",
+          "delivery_method": "courier"
+        }
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": true,
+        "reasons": [],
+        "value": {
+          "type": "money",
+          "amount": "1500.00",
+          "currency": "CZK",
+          "bound": "exact"
+        }
+      }
+    },
+    {
+      "id": "E05",
+      "title": "A starting amount stays a minimum (bound = minimum is returned unchanged)",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/ship-cz-pickup-min",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#shippingPrice",
+        "scope": {
+          "country": "CZ",
+          "delivery_method": "pickup_point"
+        }
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": true,
+        "reasons": [],
+        "value": {
+          "type": "money",
+          "amount": "59.00",
+          "currency": "CZK",
+          "bound": "minimum"
+        }
+      }
+    },
+    {
+      "id": "E06",
+      "title": "not_applicable is not a value and never becomes zero",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/free-ship-sk",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#freeShippingFrom",
+        "scope": {
+          "country": "SK"
+        }
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": false,
+        "reasons": [
+          "not_applicable"
+        ],
+        "value": null
+      }
+    },
+    {
+      "id": "E07",
+      "title": "unknown is not a value and never becomes zero",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/warranty",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#warrantyPeriod",
+        "scope": {}
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": false,
+        "reasons": [
+          "unknown"
+        ],
+        "value": null
+      }
+    },
+    {
+      "id": "E08",
+      "title": "Claim after its validity: not usable",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/return-period-old",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#returnPeriod",
+        "scope": {}
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": false,
+        "reasons": [
+          "expired"
+        ],
+        "value": null
+      }
+    },
+    {
+      "id": "E09",
+      "title": "Claim before its validity: not usable",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/return-period-next",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#returnPeriod",
+        "scope": {}
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": false,
+        "reasons": [
+          "not_yet_valid"
+        ],
+        "value": null
+      }
+    },
+    {
+      "id": "E10",
+      "title": "The same claim once its validity started: usable",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/return-period-next",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#returnPeriod",
+        "scope": {}
+      },
+      "now": "2026-12-20T00:00:00Z",
+      "expect": {
+        "usable": true,
+        "reasons": [],
+        "value": {
+          "type": "quantity",
+          "value": "14",
+          "unit": "d"
+        }
+      }
+    },
+    {
+      "id": "E11",
+      "title": "valid_until is exclusive: at that instant the claim is expired",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/return-period-old",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#returnPeriod",
+        "scope": {}
+      },
+      "now": "2026-11-15T00:00:00Z",
+      "expect": {
+        "usable": false,
+        "reasons": [
+          "expired"
+        ],
+        "value": null
+      }
+    },
+    {
+      "id": "E12",
+      "title": "One second before valid_until: usable",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/return-period-old",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#returnPeriod",
+        "scope": {}
+      },
+      "now": "2026-11-14T23:59:59Z",
+      "expect": {
+        "usable": true,
+        "reasons": [],
+        "value": {
+          "type": "quantity",
+          "value": "30",
+          "unit": "d"
+        }
+      }
+    },
+    {
+      "id": "E13",
+      "title": "valid_from is inclusive: at that instant the claim is usable",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/return-period-next",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#returnPeriod",
+        "scope": {}
+      },
+      "now": "2026-12-15T00:00:00Z",
+      "expect": {
+        "usable": true,
+        "reasons": [],
+        "value": {
+          "type": "quantity",
+          "value": "14",
+          "unit": "d"
+        }
+      }
+    },
+    {
+      "id": "E14",
+      "title": "A disputed claim stays usable but the dispute is reported; the consumer decides",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/cod-fee",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#cashOnDeliveryFee",
+        "scope": {}
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": true,
+        "reasons": [
+          "disputed"
+        ],
+        "value": {
+          "type": "money",
+          "amount": "39.00",
+          "currency": "CZK"
+        }
+      }
+    },
+    {
+      "id": "E15",
+      "title": "Scope key the profile does not define: the claim is not comparable",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/ship-cz-courier-saturday",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#shippingPrice",
+        "scope": {
+          "country": "CZ",
+          "delivery_method": "courier",
+          "delivery_day": "saturday"
+        }
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": false,
+        "reasons": [
+          "scope_not_comparable:delivery_day"
+        ],
+        "value": null
+      }
+    },
+    {
+      "id": "E16",
+      "title": "The same claim when the consumer declares it understands the key: usable",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/ship-cz-courier-saturday",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#shippingPrice",
+        "scope": {
+          "country": "CZ",
+          "delivery_method": "courier",
+          "delivery_day": "saturday"
+        },
+        "understoodScopeKeys": [
+          "country",
+          "delivery_method",
+          "delivery_day"
+        ]
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": true,
+        "reasons": [],
+        "value": {
+          "type": "money",
+          "amount": "149.00",
+          "currency": "CZK"
+        }
+      }
+    },
+    {
+      "id": "E17",
+      "title": "Another property was asked for",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/ship-cz-courier",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#returnPeriod",
+        "scope": {
+          "country": "CZ",
+          "delivery_method": "courier"
+        }
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": false,
+        "reasons": [
+          "property_mismatch"
+        ],
+        "value": null
+      }
+    },
+    {
+      "id": "E18",
+      "title": "Another subject was asked for",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/store-pickup",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#storePickup",
+        "subject": "https://other.example/#org",
+        "scope": {
+          "branch": "https://shop.example/stores/brno"
+        }
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": false,
+        "reasons": [
+          "subject_mismatch"
+        ],
+        "value": null
+      }
+    },
+    {
+      "id": "E19",
+      "title": "Review required, the consumer trusts the issuer and a current independent attestation matches the claim digest: usable",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/payment-methods",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#paymentMethods",
+        "scope": {},
+        "requireReview": true,
+        "trustedIssuers": [
+          "https://reviewer.example/#org"
+        ]
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": true,
+        "reasons": [],
+        "value": {
+          "type": "enum_set",
+          "values": [
+            "card_online",
+            "bank_transfer",
+            "cash_on_delivery"
+          ]
+        }
+      }
+    },
+    {
+      "id": "E20",
+      "title": "Review required but the consumer does not trust the issuer",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/payment-methods",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#paymentMethods",
+        "scope": {},
+        "requireReview": true,
+        "trustedIssuers": [
+          "https://another-reviewer.example/#org"
+        ]
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": false,
+        "reasons": [
+          "no_valid_independent_attestation"
+        ],
+        "value": null
+      }
+    },
+    {
+      "id": "E21",
+      "title": "Review required, claim has no attestation",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/ship-cz-courier",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#shippingPrice",
+        "scope": {
+          "country": "CZ",
+          "delivery_method": "courier"
+        },
+        "requireReview": true,
+        "trustedIssuers": [
+          "https://reviewer.example/#org"
+        ]
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": false,
+        "reasons": [
+          "no_valid_independent_attestation"
+        ],
+        "value": null
+      }
+    },
+    {
+      "id": "E22",
+      "title": "Review required: a related-party attestation and an expired independent one do not count",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/payment-methods-business",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#paymentMethods",
+        "scope": {
+          "customer": "business"
+        },
+        "requireReview": true,
+        "trustedIssuers": [
+          "https://reviewer.example/#org",
+          "https://group.example/#org"
+        ]
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": false,
+        "reasons": [
+          "no_valid_independent_attestation"
+        ],
+        "value": null
+      }
+    },
+    {
+      "id": "E23",
+      "title": "Without requireReview the same claim is usable",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/payment-methods-business",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#paymentMethods",
+        "scope": {
+          "customer": "business"
+        }
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": true,
+        "reasons": [],
+        "value": {
+          "type": "enum_set",
+          "values": [
+            "invoice",
+            "bank_transfer"
+          ]
+        }
+      }
+    },
+    {
+      "id": "E24",
+      "title": "Several reasons are all reported",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/return-period-old",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#shippingPrice",
+        "scope": {}
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": false,
+        "reasons": [
+          "expired",
+          "property_mismatch"
+        ],
+        "value": null
+      }
+    },
+    {
+      "id": "E25",
+      "title": "Scope value any matches every task value",
+      "manifest": "rental.json",
+      "claim": "https://rental.example/claims/deposit-any-min",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/rental#refundableDeposit",
+        "scope": {
+          "branch": "https://rental.example/branches/prague-airport",
+          "vehicle_class": "suv"
+        }
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": true,
+        "reasons": [],
+        "value": {
+          "type": "money",
+          "amount": "5000.00",
+          "currency": "CZK",
+          "bound": "minimum"
+        }
+      }
+    },
+    {
+      "id": "E26",
+      "title": "Scope value any still needs the key in the task",
+      "manifest": "rental.json",
+      "claim": "https://rental.example/claims/deposit-any-min",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/rental#refundableDeposit",
+        "scope": {
+          "branch": "https://rental.example/branches/prague-airport"
+        }
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": false,
+        "reasons": [
+          "scope_not_in_task:vehicle_class"
+        ],
+        "value": null
+      }
+    },
+    {
+      "id": "E27",
+      "title": "Code value (unlimited) is returned as a code, not as a number",
+      "manifest": "rental.json",
+      "claim": "https://rental.example/claims/mileage-suv",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/rental#mileageLimit",
+        "scope": {
+          "vehicle_class": "suv"
+        }
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": true,
+        "reasons": [],
+        "value": {
+          "type": "enum",
+          "value": "unlimited"
+        }
+      }
+    },
+    {
+      "id": "E28",
+      "title": "Task scope values are compared as strings (3 equals \"3\")",
+      "manifest": "rental.json",
+      "claim": "https://rental.example/claims/price-3d-economy",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/rental#totalPrice",
+        "scope": {
+          "branch": "https://rental.example/branches/prague-airport",
+          "vehicle_class": "economy",
+          "rental_days": 3
+        }
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": true,
+        "reasons": [],
+        "value": {
+          "type": "money",
+          "amount": "2970.00",
+          "currency": "CZK",
+          "vat_included": true
+        }
+      }
+    },
+    {
+      "id": "E29",
+      "title": "A price for 3 days is not a price for 4 days",
+      "manifest": "rental.json",
+      "claim": "https://rental.example/claims/price-3d-economy",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/rental#totalPrice",
+        "scope": {
+          "branch": "https://rental.example/branches/prague-airport",
+          "vehicle_class": "economy",
+          "rental_days": 4
+        }
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": false,
+        "reasons": [
+          "scope_mismatch:rental_days"
+        ],
+        "value": null
+      }
+    },
+    {
+      "id": "E30",
+      "title": "A short-lived price after its validity",
+      "manifest": "rental.json",
+      "claim": "https://rental.example/claims/price-3d-economy",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/rental#totalPrice",
+        "scope": {
+          "branch": "https://rental.example/branches/prague-airport",
+          "vehicle_class": "economy",
+          "rental_days": 3
+        }
+      },
+      "now": "2026-12-04T00:00:01Z",
+      "expect": {
+        "usable": false,
+        "reasons": [
+          "expired"
+        ],
+        "value": null
+      }
+    },
+    {
+      "id": "E31",
+      "title": "Deposit for economy is not a deposit for suv",
+      "manifest": "rental.json",
+      "claim": "https://rental.example/claims/deposit-economy",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/rental#refundableDeposit",
+        "scope": {
+          "branch": "https://rental.example/branches/prague-airport",
+          "vehicle_class": "suv"
+        }
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": false,
+        "reasons": [
+          "scope_mismatch:vehicle_class"
+        ],
+        "value": null
+      }
+    },
+    {
+      "id": "E32",
+      "title": "Claim without scope applies to every task scope",
+      "manifest": "rental.json",
+      "claim": "https://rental.example/claims/cancellation",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+        "scope": {
+          "vehicle_class": "suv",
+          "branch": "https://rental.example/branches/prague-airport"
+        }
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": true,
+        "reasons": [],
+        "value": {
+          "type": "quantity",
+          "value": "48",
+          "unit": "h"
+        }
+      }
+    },
+    {
+      "id": "E33",
+      "title": "Review required but the consumer names no trusted issuers: nothing counts as reviewed, even with a matching attestation",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/payment-methods",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#paymentMethods",
+        "scope": {},
+        "requireReview": true
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": false,
+        "reasons": [
+          "no_trust_policy"
+        ],
+        "value": null
+      }
+    },
+    {
+      "id": "E34",
+      "title": "An empty list of trusted issuers trusts nobody",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/payment-methods",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#paymentMethods",
+        "scope": {},
+        "requireReview": true,
+        "trustedIssuers": []
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": false,
+        "reasons": [
+          "no_valid_independent_attestation"
+        ],
+        "value": null
+      }
+    },
+    {
+      "id": "E35",
+      "title": "An attestation dated later than now does not count yet",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/payment-methods",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#paymentMethods",
+        "scope": {},
+        "requireReview": true,
+        "trustedIssuers": [
+          "https://reviewer.example/#org"
+        ]
+      },
+      "now": "2026-11-03T00:00:00Z",
+      "expect": {
+        "usable": false,
+        "reasons": [
+          "no_valid_independent_attestation"
+        ],
+        "value": null
+      }
+    },
+    {
+      "id": "E36",
+      "title": "Extension marked affects_use that the consumer does not implement: the claim cannot be used",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/delivery-time-sk",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#deliveryTime",
+        "scope": {
+          "country": "SK"
+        }
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": false,
+        "reasons": [
+          "unknown_required_extension:https://shop.example/ext/customs-hold"
+        ],
+        "value": null
+      }
+    },
+    {
+      "id": "E37",
+      "title": "The same claim for a consumer that implements the extension: usable",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/delivery-time-sk",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#deliveryTime",
+        "scope": {
+          "country": "SK"
+        }
+      },
+      "knownExtensions": [
+        "https://shop.example/ext/customs-hold"
+      ],
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": true,
+        "reasons": [],
+        "value": {
+          "type": "text",
+          "value": "3 až 5 pracovních dnů",
+          "lang": "cs"
+        }
+      }
+    },
+    {
+      "id": "E38",
+      "title": "Extension with affects_use false may be ignored: usable",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/store-pickup",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#storePickup",
+        "scope": {
+          "branch": "https://shop.example/stores/brno"
+        }
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": true,
+        "reasons": [],
+        "value": {
+          "type": "boolean",
+          "value": true
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "so4ag"
+version = "0.1.0"
+description = "Reader for SO4AG, the open format for business facts with scope, origin and validity: may this fact be used for this task now?"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+authors = [{ name = "SOQVER", email = "info@soqver.com" }]
+keywords = ["so4ag", "ai-agents", "business-facts", "structured-data", "json-ld", "llm"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Topic :: Software Development :: Libraries",
+]
+
+[project.urls]
+Homepage = "https://soqver.com/spec/so4ag/0.1/"
+Repository = "https://github.com/soqvercom/so4ag"
+Issues = "https://github.com/soqvercom/so4ag/issues"
+
+[project.scripts]
+so4ag = "so4ag_reader:main"
+
+[tool.setuptools]
+py-modules = ["so4ag_reader"]
+packages = ["so4ag_profiles"]
+
+[tool.setuptools.package-data]
+so4ag_profiles = ["*.json"]

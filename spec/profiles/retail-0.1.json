@@ -1,0 +1,90 @@
+{
+  "id": "https://soqver.com/spec/so4ag/0.1/retail",
+  "name": "SO4AG Retail",
+  "version": "0.1-draft",
+  "status": "draft",
+  "description": "Ten parameters a customer asks about before ordering from an online shop: delivery, payment, returns. Every scope key restricts where a claim applies; the value any means all values of that key.",
+  "namespace": "https://soqver.com/spec/so4ag/0.1/retail#",
+  "scope_keys": {
+    "country": "ISO 3166-1 alpha-2 code of the delivery country",
+    "delivery_method": "Delivery method code: courier, pickup_point, parcel_locker, post, store_pickup, any",
+    "branch": "URI of the store or pickup place",
+    "customer": "Customer segment: private, business, any"
+  },
+  "properties": {
+    "operator": {
+      "label": {"en": "Operator", "cs": "Provozovatel"},
+      "value_types": ["organization"],
+      "required_scope": [],
+      "max_validity": "P400D",
+      "description": "Legal entity operating the shop. Identifiers SHOULD include a registry number (cz-ico, sk-ico, lei)."
+    },
+    "branch": {
+      "label": {"en": "Store or pickup place", "cs": "Prodejna nebo výdejní místo"},
+      "value_types": ["place"],
+      "required_scope": [],
+      "max_validity": "P180D",
+      "description": "The shop's own store or pickup place with address and optional opening hours. The claim subject is the place URI."
+    },
+    "shippingPrice": {
+      "label": {"en": "Shipping price", "cs": "Cena dopravy"},
+      "value_types": ["money"],
+      "required_scope": ["country", "delivery_method"],
+      "max_validity": "P60D",
+      "description": "Price of delivering a standard parcel including VAT. With bound = minimum the shop states a starting price. Oversized goods and cash-on-delivery fees are not part of this claim."
+    },
+    "freeShippingFrom": {
+      "label": {"en": "Free shipping from", "cs": "Doprava zdarma od"},
+      "value_types": ["money"],
+      "required_scope": ["country"],
+      "max_validity": "P60D",
+      "description": "Order value from which standard shipping is free. If the shop never offers free shipping, knowledge_state is not_applicable. Free shipping without a threshold is amount 0.00."
+    },
+    "deliveryTime": {
+      "label": {"en": "Delivery time", "cs": "Dodací lhůta"},
+      "value_types": ["quantity", "text"],
+      "units": ["d"],
+      "required_scope": ["country"],
+      "max_validity": "P60D",
+      "description": "Usual number of working days from order to delivery for goods in stock (unit d), or a short text when the rule cannot be expressed as days. Never a guarantee for a specific order."
+    },
+    "paymentMethods": {
+      "label": {"en": "Payment methods", "cs": "Způsoby platby"},
+      "value_types": ["enum_set"],
+      "enum": ["card_online", "bank_transfer", "cash_on_delivery", "cash", "apple_pay", "google_pay", "invoice", "installments"],
+      "required_scope": [],
+      "max_validity": "P90D",
+      "description": "Payment methods the shop accepts. cash_on_delivery = payment to the carrier on delivery; cash = payment in the shop's own store."
+    },
+    "cashOnDeliveryFee": {
+      "label": {"en": "Cash on delivery fee", "cs": "Poplatek za dobírku"},
+      "value_types": ["money"],
+      "required_scope": [],
+      "max_validity": "P60D",
+      "description": "Extra fee for paying on delivery. 0.00 means free. If the shop does not offer cash on delivery, knowledge_state is not_applicable."
+    },
+    "returnPeriod": {
+      "label": {"en": "Return period", "cs": "Lhůta pro vrácení zboží"},
+      "value_types": ["quantity"],
+      "units": ["d"],
+      "required_scope": [],
+      "max_validity": "P180D",
+      "description": "Number of days from delivery within which a consumer may return goods without giving a reason (unit d)."
+    },
+    "warrantyPeriod": {
+      "label": {"en": "Warranty period", "cs": "Záruční doba"},
+      "value_types": ["quantity"],
+      "units": ["mo"],
+      "required_scope": [],
+      "max_validity": "P180D",
+      "description": "Warranty or liability period for new goods sold to consumers in months (unit mo)."
+    },
+    "storePickup": {
+      "label": {"en": "Pickup in store", "cs": "Osobní odběr"},
+      "value_types": ["boolean"],
+      "required_scope": [],
+      "max_validity": "P90D",
+      "description": "Whether an order can be collected in person at the shop's own store or pickup place."
+    }
+  }
+}

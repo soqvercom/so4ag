@@ -1,0 +1,124 @@
+{
+  "suite": "RFC 8785 canonical form for the values SO4AG uses",
+  "version": "0.1.1",
+  "vectors": [
+    {
+      "value": 0.000001,
+      "canonical": "0.000001"
+    },
+    {
+      "value": 1e-7,
+      "canonical": "1e-7"
+    },
+    {
+      "value": 1e+21,
+      "canonical": "1e+21"
+    },
+    {
+      "value": 100000000000000000000,
+      "canonical": "100000000000000000000"
+    },
+    {
+      "value": 123456789,
+      "canonical": "123456789"
+    },
+    {
+      "value": 49.195,
+      "canonical": "49.195"
+    },
+    {
+      "value": 16.608,
+      "canonical": "16.608"
+    },
+    {
+      "value": 0,
+      "canonical": "0"
+    },
+    {
+      "value": 0.1,
+      "canonical": "0.1"
+    },
+    {
+      "value": 1.5e-10,
+      "canonical": "1.5e-10"
+    },
+    {
+      "value": 333333333.3333333,
+      "canonical": "333333333.3333333"
+    },
+    {
+      "value": 4.5,
+      "canonical": "4.5"
+    },
+    {
+      "value": 0.002,
+      "canonical": "0.002"
+    },
+    {
+      "value": -12.5,
+      "canonical": "-12.5"
+    },
+    {
+      "value": 5e-324,
+      "canonical": "5e-324"
+    },
+    {
+      "value": "Kč",
+      "canonical": "\"Kč\""
+    },
+    {
+      "value": "a\"b\\c",
+      "canonical": "\"a\\\"b\\\\c\""
+    },
+    {
+      "value": "řádek\nnový",
+      "canonical": "\"řádek\\nnový\""
+    },
+    {
+      "value": true,
+      "canonical": "true"
+    },
+    {
+      "value": null,
+      "canonical": "null"
+    },
+    {
+      "value": [],
+      "canonical": "[]"
+    },
+    {
+      "value": {},
+      "canonical": "{}"
+    },
+    {
+      "value": [
+        1,
+        "a",
+        null
+      ],
+      "canonical": "[1,\"a\",null]"
+    },
+    {
+      "value": {
+        "b": 1,
+        "a": 2,
+        "é": 3,
+        "A": 4
+      },
+      "canonical": "{\"A\":4,\"a\":2,\"b\":1,\"é\":3}"
+    },
+    {
+      "value": {
+        "geo": {
+          "lon": 16.608,
+          "lat": 49.195
+        },
+        "list": [
+          0.000001,
+          10
+        ]
+      },
+      "canonical": "{\"geo\":{\"lat\":49.195,\"lon\":16.608},\"list\":[0.000001,10]}"
+    }
+  ]
+}

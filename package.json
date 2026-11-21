@@ -1,0 +1,54 @@
+{
+  "name": "so4ag",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "SO4AG (Source Objects for AGents): open format for business facts with meaning, scope, origin and validity. Specification, JSON Schema, reference validator and reader.",
+  "license": "Apache-2.0",
+  "homepage": "https://soqver.com/spec/so4ag/0.1/",
+  "keywords": [
+    "so4ag",
+    "ai-agents",
+    "business-facts",
+    "structured-data",
+    "json-schema",
+    "json-ld",
+    "validator",
+    "llm"
+  ],
+  "bin": {
+    "so4ag-validate": "validator/cli.mjs"
+  },
+  "exports": {
+    ".": "./validator/index.mjs",
+    "./jsonld": "./validator/jsonld.mjs",
+    "./v02": "./validator/v02.mjs",
+    "./sign": "./validator/sign.mjs"
+  },
+  "files": [
+    "validator",
+    "spec",
+    "examples",
+    "readers",
+    "LICENSE",
+    "LICENSE-SPEC.md",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soqvercom/so4ag.git"
+  },
+  "bugs": {
+    "url": "https://github.com/soqvercom/so4ag/issues"
+  },
+  "scripts": {
+    "test": "node --test"
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "id": "https://soqver.com/spec/so4ag/0.1/rental",
+  "name": "SO4AG Rental",
+  "version": "0.1-draft",
+  "status": "draft",
+  "description": "Ten parameters with the highest impact for car and van rental. Every scope key restricts where a claim applies; the value any means all values of that key.",
+  "namespace": "https://soqver.com/spec/so4ag/0.1/rental#",
+  "scope_keys": {
+    "country": "ISO 3166-1 alpha-2 country code",
+    "branch": "URI of the branch (pickup location)",
+    "vehicle_class": "Vehicle class code: mini, economy, compact, intermediate, standard, fullsize, premium, suv, van, minibus, other, any",
+    "vehicle": "Specific vehicle model as named by the publisher (e.g. Škoda Kamiq DSG). Narrows a claim to that vehicle",
+    "rental_days": "Number of rental days the price applies to (integer as string)",
+    "payment_purpose": "deposit | payment",
+    "tariff": "Publisher-defined tariff code",
+    "period_from": "Start of the rental period the claim applies to (ISO 8601 date-time)",
+    "period_until": "End of the rental period the claim applies to (ISO 8601 date-time)",
+    "customer": "Customer segment: private, business, any"
+  },
+  "properties": {
+    "operator": {
+      "label": {"en": "Operator", "cs": "Provozovatel"},
+      "value_types": ["organization"],
+      "required_scope": [],
+      "max_validity": "P400D",
+      "description": "Legal entity operating the rental. Identifiers SHOULD include a registry number (cz-ico, sk-ico, lei)."
+    },
+    "branch": {
+      "label": {"en": "Branch", "cs": "Pobočka"},
+      "value_types": ["place"],
+      "required_scope": [],
+      "max_validity": "P180D",
+      "description": "Pickup location with address and optional opening hours. The claim subject is the branch URI."
+    },
+    "totalPrice": {
+      "label": {"en": "Total price", "cs": "Celková cena"},
+      "value_types": ["money"],
+      "required_scope": ["branch", "vehicle_class", "rental_days"],
+      "max_validity": "P7D",
+      "description": "Total price for the whole rental of rental_days days including all mandatory fees and VAT."
+    },
+    "refundableDeposit": {
+      "label": {"en": "Refundable deposit", "cs": "Vratná kauce"},
+      "value_types": ["money"],
+      "required_scope": ["branch", "vehicle_class"],
+      "max_validity": "P60D",
+      "description": "Amount blocked or paid as a refundable security deposit. Never a rental price."
+    },
+    "mileageLimit": {
+      "label": {"en": "Mileage limit", "cs": "Limit kilometrů"},
+      "value_types": ["quantity", "enum"],
+      "units": ["km/d", "km"],
+      "enum": ["unlimited"],
+      "required_scope": ["vehicle_class"],
+      "max_validity": "P60D",
+      "description": "Included distance per day (km/d) or per rental (km), or the code unlimited."
+    },
+    "acceptedPaymentMethods": {
+      "label": {"en": "Accepted payment methods", "cs": "Přijímané platby"},
+      "value_types": ["enum_set"],
+      "enum": ["credit_card", "debit_card", "cash", "bank_transfer", "apple_pay", "google_pay", "invoice"],
+      "required_scope": ["payment_purpose"],
+      "max_validity": "P90D",
+      "description": "Methods accepted for the given purpose. Deposit and payment are separate claims."
+    },
+    "minimumDriverAge": {
+      "label": {"en": "Minimum driver age", "cs": "Minimální věk řidiče"},
+      "value_types": ["quantity"],
+      "units": ["a"],
+      "required_scope": ["vehicle_class"],
+      "max_validity": "P180D",
+      "description": "Minimum driver age in years (unit a)."
+    },
+    "additionalDriverFee": {
+      "label": {"en": "Additional driver fee", "cs": "Poplatek za dalšího řidiče"},
+      "value_types": ["money"],
+      "required_scope": [],
+      "max_validity": "P90D",
+      "description": "Fee for one additional driver per rental. 0.00 means free. If additional drivers are not allowed, knowledge_state is not_applicable."
+    },
+    "freeCancellation": {
+      "label": {"en": "Free cancellation", "cs": "Storno zdarma"},
+      "value_types": ["quantity", "text"],
+      "units": ["h"],
+      "required_scope": [],
+      "max_validity": "P90D",
+      "description": "Hours before pickup until which cancellation is free (unit h), or a short text when the rule cannot be expressed as hours."
+    },
+    "availability": {
+      "label": {"en": "Availability", "cs": "Dostupnost"},
+      "value_types": ["boolean"],
+      "required_scope": ["branch", "vehicle_class", "period_from", "period_until"],
+      "max_validity": "PT1H",
+      "live": true,
+      "description": "Whether a vehicle of the class is available for the period. Live data: validity at most one hour. Without a live connection the claim MUST be unknown."
+    }
+  }
+}

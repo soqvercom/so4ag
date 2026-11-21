@@ -1,0 +1,695 @@
+{
+  "@context": [
+    "https://schema.org",
+    {
+      "so4ag": "https://soqver.com/spec/so4ag/0.1/terms#"
+    }
+  ],
+  "@graph": [
+    {
+      "@type": "CreativeWork",
+      "@id": "https://shop.example/so4ag.json",
+      "additionalType": "so4ag:Source",
+      "so4ag:version": "0.1-draft",
+      "version": "2026-11-01.1",
+      "datePublished": "2026-11-01T09:30:00Z",
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://shop.example/#org",
+        "name": "Example Shop",
+        "so4ag:role": "first_party",
+        "so4ag:domain": "shop.example",
+        "identifier": [
+          {
+            "@type": "PropertyValue",
+            "propertyID": "cz-ico",
+            "value": "00000001"
+          }
+        ],
+        "so4ag:contact": "info@shop.example"
+      },
+      "so4ag:profile": [
+        {
+          "@id": "https://soqver.com/spec/so4ag/0.1/retail"
+        }
+      ],
+      "about": [
+        {
+          "@id": "https://shop.example/#org"
+        }
+      ],
+      "mainEntity": {
+        "@id": "https://shop.example/#org"
+      },
+      "so4ag:links": [
+        {
+          "@type": "PropertyValue",
+          "propertyID": "corrections",
+          "value": "https://shop.example/kontakt"
+        },
+        {
+          "@type": "PropertyValue",
+          "propertyID": "html",
+          "value": "https://shop.example/fakta-a-podminky"
+        }
+      ]
+    },
+    {
+      "@type": "Store",
+      "@id": "https://shop.example/#org",
+      "so4ag:type": "Store",
+      "name": "Example Shop",
+      "url": "https://shop.example/",
+      "identifier": [
+        {
+          "@type": "PropertyValue",
+          "propertyID": "cz-ico",
+          "value": "00000001"
+        }
+      ],
+      "paymentAccepted": "Card online, Bank transfer, Cash on delivery",
+      "hasShippingService": [
+        {
+          "@type": "ShippingService",
+          "name": "courier",
+          "shippingConditions": {
+            "@type": "ShippingConditions",
+            "shippingDestination": {
+              "@type": "DefinedRegion",
+              "addressCountry": "CZ"
+            },
+            "shippingRate": {
+              "@type": "MonetaryAmount",
+              "value": 99,
+              "currency": "CZK"
+            }
+          }
+        },
+        {
+          "@type": "ShippingService",
+          "shippingConditions": {
+            "@type": "ShippingConditions",
+            "shippingDestination": {
+              "@type": "DefinedRegion",
+              "addressCountry": "CZ"
+            },
+            "orderValue": {
+              "@type": "MonetaryAmount",
+              "minValue": 1500,
+              "currency": "CZK"
+            },
+            "shippingRate": {
+              "@type": "MonetaryAmount",
+              "value": 0,
+              "currency": "CZK"
+            }
+          }
+        }
+      ],
+      "location": [
+        {
+          "@id": "https://shop.example/stores/brno"
+        }
+      ],
+      "additionalProperty": [
+        {
+          "@type": "PropertyValue",
+          "@id": "https://shop.example/claims/ship-cz-courier",
+          "propertyID": "https://soqver.com/spec/so4ag/0.1/retail#shippingPrice",
+          "name": "shippingPrice",
+          "value": {
+            "@type": "MonetaryAmount",
+            "currency": "CZK",
+            "value": "99.00",
+            "so4ag:vatIncluded": true
+          },
+          "validFrom": "2026-11-01T00:00:00Z",
+          "validThrough": "2026-12-31T00:00:00Z",
+          "so4ag:revision": "1",
+          "so4ag:knowledgeState": "known",
+          "so4ag:assertionBasis": "publisher_asserted",
+          "so4ag:scope": [
+            {
+              "@type": "PropertyValue",
+              "propertyID": "country",
+              "value": "CZ"
+            },
+            {
+              "@type": "PropertyValue",
+              "propertyID": "delivery_method",
+              "value": "courier"
+            }
+          ],
+          "so4ag:evidence": [
+            {
+              "@type": "so4ag:Evidence",
+              "url": "https://shop.example/doprava",
+              "so4ag:observedAt": "2026-11-01T09:00:00Z",
+              "so4ag:kind": "webpage",
+              "so4ag:quote": "Kurýr na adresu 99 Kč"
+            }
+          ]
+        },
+        {
+          "@type": "PropertyValue",
+          "@id": "https://shop.example/claims/ship-cz-pickup-min",
+          "propertyID": "https://soqver.com/spec/so4ag/0.1/retail#shippingPrice",
+          "name": "shippingPrice",
+          "value": {
+            "@type": "MonetaryAmount",
+            "currency": "CZK",
+            "minValue": "59.00"
+          },
+          "validFrom": "2026-11-01T00:00:00Z",
+          "validThrough": "2026-12-31T00:00:00Z",
+          "so4ag:revision": "1",
+          "so4ag:knowledgeState": "known",
+          "so4ag:assertionBasis": "publisher_asserted",
+          "so4ag:scope": [
+            {
+              "@type": "PropertyValue",
+              "propertyID": "country",
+              "value": "CZ"
+            },
+            {
+              "@type": "PropertyValue",
+              "propertyID": "delivery_method",
+              "value": "pickup_point"
+            }
+          ],
+          "so4ag:evidence": [
+            {
+              "@type": "so4ag:Evidence",
+              "url": "https://shop.example/doprava",
+              "so4ag:observedAt": "2026-11-01T09:00:00Z",
+              "so4ag:kind": "webpage",
+              "so4ag:quote": "Výdejní místa od 59 Kč"
+            }
+          ]
+        },
+        {
+          "@type": "PropertyValue",
+          "@id": "https://shop.example/claims/ship-cz-courier-saturday",
+          "propertyID": "https://soqver.com/spec/so4ag/0.1/retail#shippingPrice",
+          "name": "shippingPrice",
+          "value": {
+            "@type": "MonetaryAmount",
+            "currency": "CZK",
+            "value": "149.00"
+          },
+          "validFrom": "2026-11-01T00:00:00Z",
+          "validThrough": "2026-12-31T00:00:00Z",
+          "so4ag:revision": "1",
+          "so4ag:knowledgeState": "known",
+          "so4ag:assertionBasis": "publisher_asserted",
+          "so4ag:scope": [
+            {
+              "@type": "PropertyValue",
+              "propertyID": "country",
+              "value": "CZ"
+            },
+            {
+              "@type": "PropertyValue",
+              "propertyID": "delivery_day",
+              "value": "saturday"
+            },
+            {
+              "@type": "PropertyValue",
+              "propertyID": "delivery_method",
+              "value": "courier"
+            }
+          ],
+          "so4ag:evidence": [
+            {
+              "@type": "so4ag:Evidence",
+              "url": "https://shop.example/doprava",
+              "so4ag:observedAt": "2026-11-01T09:00:00Z",
+              "so4ag:kind": "webpage"
+            }
+          ]
+        },
+        {
+          "@type": "PropertyValue",
+          "@id": "https://shop.example/claims/free-ship-cz",
+          "propertyID": "https://soqver.com/spec/so4ag/0.1/retail#freeShippingFrom",
+          "name": "freeShippingFrom",
+          "value": {
+            "@type": "MonetaryAmount",
+            "currency": "CZK",
+            "value": "1500.00",
+            "so4ag:bound": "exact"
+          },
+          "validFrom": "2026-11-01T00:00:00Z",
+          "validThrough": "2026-12-31T00:00:00Z",
+          "so4ag:revision": "1",
+          "so4ag:knowledgeState": "known",
+          "so4ag:assertionBasis": "publisher_asserted",
+          "so4ag:scope": [
+            {
+              "@type": "PropertyValue",
+              "propertyID": "country",
+              "value": "CZ"
+            }
+          ],
+          "so4ag:evidence": [
+            {
+              "@type": "so4ag:Evidence",
+              "url": "https://shop.example/doprava",
+              "so4ag:observedAt": "2026-11-01T09:00:00Z",
+              "so4ag:kind": "webpage",
+              "so4ag:quote": "Doprava zdarma od 1 500 Kč"
+            }
+          ]
+        },
+        {
+          "@type": "PropertyValue",
+          "@id": "https://shop.example/claims/free-ship-sk",
+          "propertyID": "https://soqver.com/spec/so4ag/0.1/retail#freeShippingFrom",
+          "name": "freeShippingFrom",
+          "validFrom": "2026-11-01T00:00:00Z",
+          "validThrough": "2026-12-31T00:00:00Z",
+          "so4ag:revision": "1",
+          "so4ag:knowledgeState": "not_applicable",
+          "so4ag:assertionBasis": "publisher_asserted",
+          "so4ag:scope": [
+            {
+              "@type": "PropertyValue",
+              "propertyID": "country",
+              "value": "SK"
+            }
+          ],
+          "so4ag:note": "No free shipping to Slovakia."
+        },
+        {
+          "@type": "PropertyValue",
+          "@id": "https://shop.example/claims/delivery-time-cz",
+          "propertyID": "https://soqver.com/spec/so4ag/0.1/retail#deliveryTime",
+          "name": "deliveryTime",
+          "value": {
+            "@value": "2 až 3 pracovní dny",
+            "@language": "cs"
+          },
+          "validFrom": "2026-11-01T00:00:00Z",
+          "validThrough": "2026-12-31T00:00:00Z",
+          "so4ag:revision": "1",
+          "so4ag:knowledgeState": "known",
+          "so4ag:assertionBasis": "publisher_asserted",
+          "so4ag:scope": [
+            {
+              "@type": "PropertyValue",
+              "propertyID": "country",
+              "value": "CZ"
+            }
+          ],
+          "so4ag:evidence": [
+            {
+              "@type": "so4ag:Evidence",
+              "url": "https://shop.example/doprava",
+              "so4ag:observedAt": "2026-11-01T09:00:00Z",
+              "so4ag:kind": "webpage"
+            }
+          ]
+        },
+        {
+          "@type": "PropertyValue",
+          "@id": "https://shop.example/claims/delivery-time-sk",
+          "propertyID": "https://soqver.com/spec/so4ag/0.1/retail#deliveryTime",
+          "name": "deliveryTime",
+          "value": {
+            "@value": "3 až 5 pracovních dnů",
+            "@language": "cs"
+          },
+          "validFrom": "2026-11-01T00:00:00Z",
+          "validThrough": "2026-12-31T00:00:00Z",
+          "so4ag:revision": "1",
+          "so4ag:knowledgeState": "known",
+          "so4ag:assertionBasis": "publisher_asserted",
+          "so4ag:scope": [
+            {
+              "@type": "PropertyValue",
+              "propertyID": "country",
+              "value": "SK"
+            }
+          ],
+          "so4ag:evidence": [
+            {
+              "@type": "so4ag:Evidence",
+              "url": "https://shop.example/doprava",
+              "so4ag:observedAt": "2026-11-01T09:00:00Z",
+              "so4ag:kind": "webpage"
+            }
+          ],
+          "so4ag:extensions": {
+            "@type": "@json",
+            "@value": {
+              "https://shop.example/ext/customs-hold": {
+                "affects_use": true,
+                "value": {
+                  "note": "Parcels may be held at customs; the time does not include the hold."
+                }
+              }
+            }
+          }
+        },
+        {
+          "@type": "PropertyValue",
+          "@id": "https://shop.example/claims/return-period-old",
+          "propertyID": "https://soqver.com/spec/so4ag/0.1/retail#returnPeriod",
+          "name": "returnPeriod",
+          "value": {
+            "@type": "QuantitativeValue",
+            "value": "30",
+            "unitText": "d",
+            "unitCode": "DAY"
+          },
+          "validFrom": "2026-08-01T00:00:00Z",
+          "validThrough": "2026-11-15T00:00:00Z",
+          "so4ag:revision": "1",
+          "so4ag:knowledgeState": "known",
+          "so4ag:assertionBasis": "publisher_asserted",
+          "so4ag:scope": [],
+          "so4ag:evidence": [
+            {
+              "@type": "so4ag:Evidence",
+              "url": "https://shop.example/vraceni",
+              "so4ag:observedAt": "2026-11-01T09:00:00Z",
+              "so4ag:kind": "webpage"
+            }
+          ]
+        },
+        {
+          "@type": "PropertyValue",
+          "@id": "https://shop.example/claims/return-period-next",
+          "propertyID": "https://soqver.com/spec/so4ag/0.1/retail#returnPeriod",
+          "name": "returnPeriod",
+          "value": {
+            "@type": "QuantitativeValue",
+            "value": "14",
+            "unitText": "d",
+            "unitCode": "DAY"
+          },
+          "validFrom": "2026-12-15T00:00:00Z",
+          "validThrough": "2027-03-01T00:00:00Z",
+          "so4ag:revision": "1",
+          "so4ag:knowledgeState": "known",
+          "so4ag:assertionBasis": "publisher_asserted",
+          "so4ag:scope": [],
+          "so4ag:evidence": [
+            {
+              "@type": "so4ag:Evidence",
+              "url": "https://shop.example/vraceni",
+              "so4ag:observedAt": "2026-11-01T09:00:00Z",
+              "so4ag:kind": "webpage"
+            }
+          ]
+        },
+        {
+          "@type": "PropertyValue",
+          "@id": "https://shop.example/claims/warranty",
+          "propertyID": "https://soqver.com/spec/so4ag/0.1/retail#warrantyPeriod",
+          "name": "warrantyPeriod",
+          "validFrom": "2026-11-01T00:00:00Z",
+          "validThrough": "2026-12-31T00:00:00Z",
+          "so4ag:revision": "1",
+          "so4ag:knowledgeState": "unknown",
+          "so4ag:assertionBasis": "publisher_asserted",
+          "so4ag:scope": []
+        },
+        {
+          "@type": "PropertyValue",
+          "@id": "https://shop.example/claims/payment-methods",
+          "propertyID": "https://soqver.com/spec/so4ag/0.1/retail#paymentMethods",
+          "name": "paymentMethods",
+          "value": {
+            "@type": "ItemList",
+            "itemListElement": [
+              {
+                "@type": "DefinedTerm",
+                "termCode": "card_online"
+              },
+              {
+                "@type": "DefinedTerm",
+                "termCode": "bank_transfer"
+              },
+              {
+                "@type": "DefinedTerm",
+                "termCode": "cash_on_delivery"
+              }
+            ]
+          },
+          "validFrom": "2026-11-01T00:00:00Z",
+          "validThrough": "2026-12-31T00:00:00Z",
+          "so4ag:revision": "1",
+          "so4ag:knowledgeState": "known",
+          "so4ag:assertionBasis": "independently_reviewed",
+          "so4ag:scope": [],
+          "so4ag:evidence": [
+            {
+              "@type": "so4ag:Evidence",
+              "url": "https://shop.example/platba",
+              "so4ag:observedAt": "2026-11-01T09:00:00Z",
+              "so4ag:kind": "webpage"
+            }
+          ],
+          "so4ag:attestation": [
+            {
+              "@type": "so4ag:Attestation",
+              "@id": "https://shop.example/claims/payment-methods/attestations/1",
+              "so4ag:issuer": {
+                "@id": "https://reviewer.example/#org"
+              },
+              "so4ag:issuerRelation": "independent",
+              "so4ag:method": "document review",
+              "so4ag:claimDigest": "sha256:1362c2dd54426a202d1e7d7089f96866d877ddc09cb1f7576a43c783b032500e",
+              "so4ag:issuedAt": "2026-11-05T00:00:00Z",
+              "so4ag:expiresAt": "2027-02-05T00:00:00Z"
+            }
+          ]
+        },
+        {
+          "@type": "PropertyValue",
+          "@id": "https://shop.example/claims/payment-methods-business",
+          "propertyID": "https://soqver.com/spec/so4ag/0.1/retail#paymentMethods",
+          "name": "paymentMethods",
+          "value": {
+            "@type": "ItemList",
+            "itemListElement": [
+              {
+                "@type": "DefinedTerm",
+                "termCode": "invoice"
+              },
+              {
+                "@type": "DefinedTerm",
+                "termCode": "bank_transfer"
+              }
+            ]
+          },
+          "validFrom": "2026-11-01T00:00:00Z",
+          "validThrough": "2026-12-31T00:00:00Z",
+          "so4ag:revision": "1",
+          "so4ag:knowledgeState": "known",
+          "so4ag:assertionBasis": "independently_reviewed",
+          "so4ag:scope": [
+            {
+              "@type": "PropertyValue",
+              "propertyID": "customer",
+              "value": "business"
+            }
+          ],
+          "so4ag:evidence": [
+            {
+              "@type": "so4ag:Evidence",
+              "url": "https://shop.example/platba",
+              "so4ag:observedAt": "2026-11-01T09:00:00Z",
+              "so4ag:kind": "webpage"
+            }
+          ],
+          "so4ag:attestation": [
+            {
+              "@type": "so4ag:Attestation",
+              "@id": "https://shop.example/claims/payment-methods-business/attestations/1",
+              "so4ag:issuer": {
+                "@id": "https://group.example/#org"
+              },
+              "so4ag:issuerRelation": "related_party",
+              "so4ag:method": "document review",
+              "so4ag:claimDigest": "sha256:c41e780d11cf857d0d813b8d461a9226527d5a1fd19e1401981b56a6a54c2f58",
+              "so4ag:issuedAt": "2026-11-05T00:00:00Z",
+              "so4ag:expiresAt": "2027-02-05T00:00:00Z"
+            },
+            {
+              "@type": "so4ag:Attestation",
+              "@id": "https://shop.example/claims/payment-methods-business/attestations/2",
+              "so4ag:issuer": {
+                "@id": "https://reviewer.example/#org"
+              },
+              "so4ag:issuerRelation": "independent",
+              "so4ag:method": "document review",
+              "so4ag:claimDigest": "sha256:c41e780d11cf857d0d813b8d461a9226527d5a1fd19e1401981b56a6a54c2f58",
+              "so4ag:issuedAt": "2026-08-01T00:00:00Z",
+              "so4ag:expiresAt": "2026-11-10T00:00:00Z"
+            }
+          ]
+        },
+        {
+          "@type": "PropertyValue",
+          "@id": "https://shop.example/claims/cod-fee",
+          "propertyID": "https://soqver.com/spec/so4ag/0.1/retail#cashOnDeliveryFee",
+          "name": "cashOnDeliveryFee",
+          "value": {
+            "@type": "MonetaryAmount",
+            "currency": "CZK",
+            "value": "39.00"
+          },
+          "validFrom": "2026-11-01T00:00:00Z",
+          "validThrough": "2026-12-31T00:00:00Z",
+          "so4ag:revision": "1",
+          "so4ag:knowledgeState": "known",
+          "so4ag:assertionBasis": "publisher_asserted",
+          "so4ag:scope": [],
+          "so4ag:evidence": [
+            {
+              "@type": "so4ag:Evidence",
+              "url": "https://shop.example/platba",
+              "so4ag:observedAt": "2026-11-01T09:00:00Z",
+              "so4ag:kind": "webpage"
+            }
+          ],
+          "so4ag:dispute": {
+            "so4ag:since": "2026-11-20T10:00:00Z",
+            "so4ag:conflictingClaim": [
+              {
+                "@id": "https://aggregator.example/claims/shop-example-cod"
+              }
+            ],
+            "so4ag:note": "An aggregator reports 49 CZK."
+          }
+        },
+        {
+          "@type": "PropertyValue",
+          "@id": "https://shop.example/claims/store-pickup",
+          "propertyID": "https://soqver.com/spec/so4ag/0.1/retail#storePickup",
+          "name": "storePickup",
+          "value": true,
+          "validFrom": "2026-11-01T00:00:00Z",
+          "validThrough": "2026-12-31T00:00:00Z",
+          "so4ag:revision": "1",
+          "so4ag:knowledgeState": "known",
+          "so4ag:assertionBasis": "publisher_asserted",
+          "so4ag:scope": [
+            {
+              "@type": "PropertyValue",
+              "propertyID": "branch",
+              "value": "https://shop.example/stores/brno"
+            }
+          ],
+          "so4ag:evidence": [
+            {
+              "@type": "so4ag:Evidence",
+              "url": "https://shop.example/prodejny",
+              "so4ag:observedAt": "2026-11-01T09:00:00Z",
+              "so4ag:kind": "webpage"
+            }
+          ],
+          "so4ag:extensions": {
+            "@type": "@json",
+            "@value": {
+              "https://shop.example/ext/pickup-note": {
+                "affects_use": false,
+                "value": {
+                  "ready_in_hours": 2
+                }
+              }
+            }
+          }
+        },
+        {
+          "@type": "PropertyValue",
+          "@id": "https://shop.example/claims/operator",
+          "propertyID": "https://soqver.com/spec/so4ag/0.1/retail#operator",
+          "name": "operator",
+          "value": {
+            "@type": "Organization",
+            "name": "Example Shop s.r.o.",
+            "identifier": [
+              {
+                "@type": "PropertyValue",
+                "propertyID": "cz-ico",
+                "value": "00000001"
+              }
+            ],
+            "url": "https://shop.example/"
+          },
+          "validFrom": "2026-11-01T00:00:00Z",
+          "validThrough": "2026-12-31T00:00:00Z",
+          "so4ag:revision": "1",
+          "so4ag:knowledgeState": "known",
+          "so4ag:assertionBasis": "publisher_asserted",
+          "so4ag:scope": [],
+          "so4ag:evidence": [
+            {
+              "@type": "so4ag:Evidence",
+              "url": "https://ares.gov.cz/ekonomicke-subjekty?ico=00000001",
+              "so4ag:observedAt": "2026-11-01T09:00:00Z",
+              "so4ag:kind": "registry",
+              "so4ag:issuer": "ARES"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "@type": "Store",
+      "@id": "https://shop.example/stores/brno",
+      "name": "Brno",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Example 1, 602 00 Brno",
+        "addressCountry": "CZ"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 49.195,
+        "longitude": 16.608
+      },
+      "openingHours": "Mo-Fr 09:00-18:00",
+      "additionalProperty": [
+        {
+          "@type": "PropertyValue",
+          "@id": "https://shop.example/claims/branch-brno",
+          "propertyID": "https://soqver.com/spec/so4ag/0.1/retail#branch",
+          "name": "branch",
+          "value": {
+            "@type": "Place",
+            "name": "Brno",
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "Example 1, 602 00 Brno",
+              "addressCountry": "CZ"
+            },
+            "geo": {
+              "@type": "GeoCoordinates",
+              "latitude": 49.195,
+              "longitude": 16.608
+            },
+            "openingHours": "Mo-Fr 09:00-18:00"
+          },
+          "validFrom": "2026-11-01T00:00:00Z",
+          "validThrough": "2026-12-31T00:00:00Z",
+          "so4ag:revision": "1",
+          "so4ag:knowledgeState": "known",
+          "so4ag:assertionBasis": "publisher_asserted",
+          "so4ag:scope": [],
+          "so4ag:evidence": [
+            {
+              "@type": "so4ag:Evidence",
+              "url": "https://shop.example/prodejny",
+              "so4ag:observedAt": "2026-11-01T09:00:00Z",
+              "so4ag:kind": "webpage"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
