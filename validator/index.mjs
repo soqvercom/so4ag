@@ -193,7 +193,14 @@ export function validateManifest(manifest, { profiles = BUILTIN_PROFILES, now = 
  * requireReview needs an explicit list of trusted issuers: without that policy nothing counts as independently reviewed.
  */
 export function evaluateClaim(claim, task, { now = new Date(), profiles = BUILTIN_PROFILES, knownExtensions = [], sourceExtensions = null } = {}) {
-  const out = { usable: false, reasons: [], value: null, state: claim.knowledge_state };
+  const out = { usable: false, reasons: [], value: null, state: claim?.knowledge_state };
+  // This function expects a claim of a source that passed validateManifest (selectClaims checks that). A claim that is
+  // visibly malformed is still never usable: no decision is made on dates or a scope that cannot be read.
+  const wellFormed = claim && typeof claim === 'object' && claim.scope && typeof claim.scope === 'object' && !Array.isArray(claim.scope)
+    && Number.isFinite(Date.parse(claim.valid_from)) && Number.isFinite(Date.parse(claim.valid_until))
+    && ['known', 'unknown', 'not_applicable'].includes(claim.knowledge_state)
+    && (claim.knowledge_state === 'known' ? claim.value != null && Array.isArray(claim.evidence) && claim.evidence.length > 0 : claim.value === undefined);
+  if (!wellFormed) { out.reasons.push('invalid_claim'); return out; }
   if (task.property && claim.property !== task.property) out.reasons.push('property_mismatch');
   if (task.subject && claim.subject !== task.subject) out.reasons.push('subject_mismatch');
   const idx = propertyIndex(profiles);
@@ -218,9 +225,14 @@ export function evaluateClaim(claim, task, { now = new Date(), profiles = BUILTI
     else {
       const digest = claimDigest(claim);
       // a matching digest only ties the attestation to this wording; whether the issuer is trusted is the consumer's own list
-      const ok = (claim.attestations || []).some((a) => a.claim_digest === digest && a.issuer_relation === 'independent' && task.trustedIssuers.includes(a.issuer)
+      const matching = (claim.attestations || []).filter((a) => a.claim_digest === digest && a.issuer_relation === 'independent' && task.trustedIssuers.includes(a.issuer)
         && Date.parse(a.issued_at) <= t && Date.parse(a.expires_at) > t);
-      if (!ok) out.reasons.push('no_valid_independent_attestation');
+      // The attestation sits in the publisher's own file, so its issuer field proves nothing: anyone can write a trusted
+      // name there. It counts only when the consumer has authenticated it with the issuer (a verified credential or the
+      // issuer's own status record) and lists its id in authenticatedAttestations.
+      const authenticated = Array.isArray(task.authenticatedAttestations) ? task.authenticatedAttestations : [];
+      if (!matching.length) out.reasons.push('no_valid_independent_attestation');
+      else if (!matching.some((a) => authenticated.includes(a.id))) out.reasons.push('attestation_not_authenticated');
     }
   }
   const blocking = out.reasons.filter((r) => r !== 'disputed');
@@ -229,15 +241,32 @@ export function evaluateClaim(claim, task, { now = new Date(), profiles = BUILTI
   return out;
 }
 
-/** Pick claims for a property and task scope; returns evaluated list, usable first. */
+/**
+ * The safe way to read a source: pick the claims for a property and a task scope; returns the evaluated list, usable first.
+ * The source is checked first (version, then validateManifest); a source that fails yields no usable claim (invalid_source).
+ * Two current claims that state different values for the same subject, property and scope are both refused
+ * (conflicting_claims): the reader never picks a winner silently.
+ * opts.validated = true skips the check for a source the caller has validated already.
+ */
 export function selectClaims(manifest, task, opts = {}) {
   const version = checkVersion(manifest);
-  return (Array.isArray(manifest.claims) ? manifest.claims : [])
+  const claims = Array.isArray(manifest?.claims) ? manifest.claims : [];
+  const refuse = (code) => claims.filter((c) => !task.property || c?.property === task.property)
+    .map((c) => ({ claim: c, result: { usable: false, reasons: [code], value: null, state: c?.knowledge_state } }));
+  // a source of a version this reader does not know is never evaluated by the rules of another version
+  if (!version.ok) return refuse(version.code);
+  if (!opts.validated && !validateManifest(manifest, { profiles: opts.profiles || BUILTIN_PROFILES, now: opts.now || new Date() }).valid) return refuse('invalid_source');
+  const out = claims
     .filter((c) => !task.property || c.property === task.property)
-    .map((c) => {
-      // a source of a version this reader does not know is never evaluated by the rules of another version
-      if (!version.ok) return { claim: c, result: { usable: false, reasons: [version.code], value: null, state: c.knowledge_state } };
-      return { claim: c, result: evaluateClaim(c, task, { ...opts, sourceExtensions: manifest.extensions || null }) };
-    })
-    .sort((a, b) => Number(b.result.usable) - Number(a.result.usable));
+    .map((c) => ({ claim: c, result: evaluateClaim(c, task, { ...opts, sourceExtensions: manifest.extensions || null }) }));
+  const groups = new Map();
+  for (const x of out.filter((y) => y.result.usable)) {
+    const key = canonicalize([x.claim.subject, x.claim.property, x.claim.scope]);
+    groups.set(key, [...(groups.get(key) || []), x]);
+  }
+  for (const g of groups.values()) {
+    if (new Set(g.map((x) => canonicalize(x.claim.value))).size < 2) continue;
+    for (const x of g) x.result = { ...x.result, usable: false, value: null, reasons: [...x.result.reasons, 'conflicting_claims'] };
+  }
+  return out.sort((a, b) => Number(b.result.usable) - Number(a.result.usable));
 }

@@ -2,6 +2,21 @@
 
 Changes of the specification are also listed at the end of `spec/so4ag-0.1.md`.
 
+## 0.1.3 (2026-11-22)
+
+Safety fixes after a second external review. Update if you use 0.1.2 or older.
+
+- **Reading an invalid source:** `selectClaims` (JavaScript) and `read_source` (Python) check the source first; a source
+  that is not well formed yields no usable claim (`invalid_source`). The low-level `evaluateClaim` refuses a malformed claim.
+- **Forged review:** an attestation counts only when the consumer has authenticated it with the issuer and passes its id
+  (`authenticatedAttestations`, `--authenticated`). A trusted issuer's name written in the source is not a proof.
+- **Conflicts:** two usable claims with different values for the same subject, property and scope are both refused
+  (`conflicting_claims`).
+- **Look-alike vocabularies:** the plain schema.org layer recognises properties by their whole URI, never by the name after `#`;
+  a JSON-LD document that binds `so4ag:` to another vocabulary is not read.
+- **Conditions in derived output:** a claim or a source with an extension marked `affects_use` never enters the plain schema.org layer.
+- Conformance suite 0.1.3: 45 evaluation cases, 10 whole-source cases.
+
 ## 0.1.2 (2026-11-22)
 
 The format is no longer tied to two industries.

@@ -23,8 +23,8 @@ test('conformance: whole sources (version of the format, extensions of the sourc
     const items = selectClaims(c.document, {}, { now: new Date(c.now), knownExtensions: c.knownExtensions || [] })
       .map(({ claim }) => selectClaims(c.document, { property: claim.property, scope: claim.scope }, { now: new Date(c.now), knownExtensions: c.knownExtensions || [] }).find((x) => x.claim.id === claim.id).result);
     if (c.expect.error) {
-      assert.equal(version.ok, false, `${c.id} ${c.title}`);
-      assert.equal(version.code, c.expect.error, `${c.id} ${c.title}`);
+      if (c.expect.error === 'invalid_source') assert.equal(version.ok, true, `${c.id} ${c.title}`);
+      else { assert.equal(version.ok, false, `${c.id} ${c.title}`); assert.equal(version.code, c.expect.error, `${c.id} ${c.title}`); }
       assert.ok(items.length > 0 && items.every((r) => !r.usable && r.reasons.includes(c.expect.error) && r.value === null), `${c.id}: no claim of a refused source may be usable`);
       continue;
     }

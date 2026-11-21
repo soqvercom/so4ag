@@ -127,33 +127,40 @@ const PAY_TEXT = {
   card_online: 'Card online', credit_card: 'Credit card', debit_card: 'Debit card', bank_transfer: 'Bank transfer', cash_on_delivery: 'Cash on delivery',
   cash: 'Cash', apple_pay: 'Apple Pay', google_pay: 'Google Pay', invoice: 'Invoice', installments: 'Instalments',
 };
-const isCurrentKnown = (c, t) => c.knowledge_state === 'known' && !c.dispute && t >= Date.parse(c.valid_from) && t < Date.parse(c.valid_until);
+// A condition the plain schema.org layer cannot carry would be lost there, so a claim (or a whole source) with an extension
+// marked affects_use never enters it.
+const conditional = (ext) => Object.values(ext || {}).some((e) => e && e.affects_use === true);
+const isCurrentKnown = (c, t) => c.knowledge_state === 'known' && !c.dispute && !conditional(c.extensions) && t >= Date.parse(c.valid_from) && t < Date.parse(c.valid_until);
+// Properties are recognised by their whole URI. A foreign vocabulary that happens to use the same name after # is never
+// read as one of ours.
+const HOSTS = ['https://soqver.com', 'https://soqver.botrento.com'];
+const uris = (profile, name) => HOSTS.map((h) => `${h}/spec/so4ag/0.1/${profile}#${name}`);
 
 /** Plain schema.org properties a search engine already understands, taken only from claims that are known and current at `now`. */
-export function nativeLayer(claims, now = new Date()) {
+export function nativeLayer(claims, now = new Date(), { sourceExtensions = null } = {}) {
   const t = now.getTime();
-  const cur = claims.filter((c) => isCurrentKnown(c, t));
+  const cur = conditional(sourceExtensions) ? [] : claims.filter((c) => isCurrentKnown(c, t));
   // A claim enters the native layer only when schema.org can carry its whole scope; otherwise the condition would be lost.
-  const by = (name, keys = []) => cur.filter((c) => propName(c.property) === name && Object.keys(c.scope).every((k) => keys.includes(k)));
+  const by = (profile, name, keys = []) => cur.filter((c) => uris(profile, name).includes(c.property) && Object.keys(c.scope).every((k) => keys.includes(k)));
   const out = {};
-  const ret = by('returnPeriod', ['country']).filter((c) => c.value.type === 'quantity' && c.value.unit === 'd');
+  const ret = by('retail', 'returnPeriod', ['country']).filter((c) => c.value.type === 'quantity' && c.value.unit === 'd');
   if (ret.length) {
     out.hasMerchantReturnPolicy = ret.map((c) => def({
       '@type': 'MerchantReturnPolicy', applicableCountry: c.scope.country, returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
       merchantReturnDays: Number(c.value.value),
     }));
   }
-  const pay = [...by('paymentMethods'), ...by('acceptedPaymentMethods', ['payment_purpose']).filter((c) => c.scope.payment_purpose === 'payment')].filter((c) => c.value.type === 'enum_set');
+  const pay = [...by('retail', 'paymentMethods'), ...by('general', 'paymentMethods'), ...by('rental', 'acceptedPaymentMethods', ['payment_purpose']).filter((c) => c.scope.payment_purpose === 'payment')].filter((c) => c.value.type === 'enum_set');
   if (pay.length) out.paymentAccepted = [...new Set(pay.flatMap((c) => c.value.values))].map((x) => PAY_TEXT[x] || x).join(', ');
   const ship = [];
-  for (const c of by('shippingPrice', ['country', 'delivery_method']).filter((x) => x.value.type === 'money' && x.value.bound !== 'minimum' && x.scope.country)) {
+  for (const c of by('retail', 'shippingPrice', ['country', 'delivery_method']).filter((x) => x.value.type === 'money' && x.value.bound !== 'minimum' && x.scope.country)) {
     ship.push(def({
       '@type': 'ShippingService', name: c.scope.delivery_method && c.scope.delivery_method !== 'any' ? c.scope.delivery_method : undefined,
       shippingConditions: { '@type': 'ShippingConditions', shippingDestination: { '@type': 'DefinedRegion', addressCountry: c.scope.country },
         shippingRate: { '@type': 'MonetaryAmount', value: Number(c.value.amount), currency: c.value.currency } },
     }));
   }
-  for (const c of by('freeShippingFrom', ['country']).filter((x) => x.value.type === 'money' && x.value.bound !== 'minimum' && x.scope.country)) {
+  for (const c of by('retail', 'freeShippingFrom', ['country']).filter((x) => x.value.type === 'money' && x.value.bound !== 'minimum' && x.scope.country)) {
     ship.push({
       '@type': 'ShippingService',
       shippingConditions: { '@type': 'ShippingConditions', shippingDestination: { '@type': 'DefinedRegion', addressCountry: c.scope.country },
@@ -200,7 +207,7 @@ export function manifestToJsonLd(m, { now = new Date(), native, describe } = {})
       if (place) { const { '@type': _t, ...rest } = valueToJsonLd(place.value); Object.assign(node, rest); }
     }
     if (withNative && id === main) {
-      Object.assign(node, nativeLayer(list, now));
+      Object.assign(node, nativeLayer(list, now, { sourceExtensions: m.extensions }));
       const branches = order.filter((x) => x !== id && isBranch(claimsBy.get(x)));
       if (branches.length) node.location = branches.map(idRef);
     }
@@ -231,6 +238,10 @@ export function manifestToJsonLd(m, { now = new Date(), native, describe } = {})
 export function manifestFromJsonLd(doc) {
   const graph = Array.isArray(doc?.['@graph']) ? doc['@graph'] : null;
   if (!graph) throw new Error('document has no @graph');
+  // The prefix so4ag: must mean our vocabulary. A document that binds it to anything else is another vocabulary that only
+  // looks alike, and is not read.
+  const bound = [].concat(doc['@context'] ?? []).map((c) => (c && typeof c === 'object' ? c.so4ag : undefined)).filter((x) => x !== undefined);
+  if (!bound.length || !bound.every((x) => HOSTS.some((h) => x === `${h}/spec/so4ag/0.1/terms#`))) throw new Error('the @context does not bind so4ag: to the SO4AG 0.1 vocabulary');
   const src = graph.find((n) => n.additionalType === SOURCE_TYPE || n.additionalType === TERMS + 'Source');
   if (!src) throw new Error('no so4ag:Source node');
   const byId = new Map(graph.filter((n) => n !== src && n['@id']).map((n) => [n['@id'], n]));

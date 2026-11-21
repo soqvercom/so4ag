@@ -103,9 +103,10 @@ test('consumer: an attestation the source wrote about itself is never accepted w
   assert.equal(none.usable, false); assert.deepEqual(none.reasons, ['no_trust_policy']);
   assert.equal(evaluateClaim(c, { ...task, trustedIssuers: [] }, { now: NOW }).usable, false);
   assert.equal(evaluateClaim(c, { ...task, trustedIssuers: ['https://reviewer.example/#org'] }, { now: NOW }).usable, false, 'an issuer the consumer does not list');
-  assert.equal(evaluateClaim(c, { ...task, trustedIssuers: [attacker.issuer] }, { now: NOW }).usable, true, 'only the consumer can decide to trust an issuer');
+  assert.deepEqual(evaluateClaim(c, { ...task, trustedIssuers: [attacker.issuer] }, { now: NOW }).reasons, ['attestation_not_authenticated'], 'a trusted name written in the source is not a proof');
+  assert.equal(evaluateClaim(c, { ...task, trustedIssuers: [attacker.issuer], authenticatedAttestations: [attacker.id] }, { now: NOW }).usable, true, 'only the consumer can trust an issuer and authenticate its attestation');
   c.attestations = [{ ...attacker, issued_at: '2027-01-01T00:00:00Z' }];
-  assert.equal(evaluateClaim(c, { ...task, trustedIssuers: [attacker.issuer] }, { now: NOW }).usable, false, 'not issued yet');
+  assert.equal(evaluateClaim(c, { ...task, trustedIssuers: [attacker.issuer], authenticatedAttestations: [attacker.id] }, { now: NOW }).usable, false, 'not issued yet');
 });
 
 test('consumer: an unsupported version and an unknown required extension never yield a usable claim', () => {

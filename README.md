@@ -30,7 +30,7 @@ The Python reader is on PyPI. The JavaScript package installs straight from this
 
 ```bash
 # JavaScript (Node 20 or newer): validator, reader, command so4ag-validate
-npm install github:soqvercom/so4ag#v0.1.2
+npm install github:soqvercom/so4ag#v0.1.3
 npx so4ag-validate https://example.com/so4ag.json
 
 # Python (3.10 or newer, standard library only): reader, command so4ag
@@ -72,7 +72,8 @@ for (const { claim, result } of answers) console.log(claim.id, result.usable, re
 ```
 
 Every answer says whether the claim is `usable` and lists the `reasons` when it is not
-(`expired`, `scope_mismatch:<key>`, `unknown`, `disputed`, `no_trust_policy` and others).
+(`expired`, `scope_mismatch:<key>`, `unknown`, `disputed`, `no_trust_policy`, `conflicting_claims` and others).
+`selectClaims` is the safe way to read: it checks the source first and refuses all of it when it is not valid.
 Pass `{ now: new Date('2027-06-01') }` as the third argument to ask about another time.
 
 ## Use it in code (Python, standard library only)
@@ -109,7 +110,7 @@ when it does not: the safety rules hold for every profile alike.
 ## Write your own reader
 
 The conformance suite in `spec/conformance/0.1/` is plain JSON and needs none of our code: two valid sources in
-three forms, expected digests, 43 evaluation cases, 31 validation cases, 6 whole-source cases and 25 vectors of the
+three forms, expected digests, 45 evaluation cases, 31 validation cases, 10 whole-source cases and 25 vectors of the
 canonical form (RFC 8785). `spec/conformance/0.1/README.md` says when a reader or a validator passes.
 
 ## Hosted read-only endpoints

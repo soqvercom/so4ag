@@ -45,3 +45,29 @@ test('any industry: General profile facts answer a task; a price needs its item'
   assert.equal(ask('https://dental.example/so4ag-profile#emergencySlot', { day_type: 'weekday' })[0].result.usable, true);
   assert.deepEqual(ask('https://dental.example/so4ag-profile#emergencySlot', {})[0].result.reasons, ['scope_not_comparable:day_type']);
 });
+
+test('safety: an invalid source, a forged review, a conflict and look-alike vocabularies are refused', async () => {
+  const { manifestToJsonLd, manifestFromJsonLd, nativeLayer } = await import('../validator/jsonld.mjs');
+  const shop = read('../spec/conformance/0.1/shop.json');
+  const NOW2 = new Date('2026-11-21T12:00:00Z');
+  // reading a source the validator rejects
+  const broken = structuredClone(shop); delete broken.claims[0].evidence;
+  assert.ok(selectClaims(broken, {}, { now: NOW2 }).every((x) => !x.result.usable && x.result.reasons.includes('invalid_source')));
+  const badTime = structuredClone(shop); badTime.claims[0].valid_until = 'not-a-date';
+  assert.ok(selectClaims(badTime, {}, { now: NOW2 }).every((x) => !x.result.usable));
+  // a foreign property with the same name after # is not read as a shop rule
+  const R = 'https://soqver.com/spec/so4ag/0.1/retail#';
+  const ret = { ...shop.claims.find((c) => c.property === R + 'returnPeriod'), valid_from: '2026-11-01T00:00:00Z', valid_until: '2026-12-31T00:00:00Z' };
+  assert.ok(ret, 'the fixture has a current return period');
+  assert.ok(nativeLayer([ret], NOW2).hasMerchantReturnPolicy);
+  assert.equal(nativeLayer([{ ...ret, property: 'https://astronomy.example/vocab#returnPeriod' }], NOW2).hasMerchantReturnPolicy, undefined);
+  // a claim with a condition the plain layer cannot carry stays out of it
+  const cond = { 'https://shop.example/ext/members-only': { affects_use: true, value: true } };
+  assert.equal(nativeLayer([{ ...ret, extensions: cond }], NOW2).hasMerchantReturnPolicy, undefined);
+  assert.equal(nativeLayer([ret], NOW2, { sourceExtensions: cond }).hasMerchantReturnPolicy, undefined);
+  // JSON-LD whose so4ag: prefix means something else is not read
+  const doc = manifestToJsonLd(shop, { now: NOW2 });
+  assert.equal(manifestFromJsonLd(doc).claims.length, shop.claims.length);
+  const forged = structuredClone(doc); forged['@context'] = ['https://schema.org', { so4ag: 'https://evil.example/terms#' }];
+  assert.throws(() => manifestFromJsonLd(forged), /@context/);
+});

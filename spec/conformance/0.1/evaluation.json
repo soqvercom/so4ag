@@ -383,7 +383,7 @@
     },
     {
       "id": "E19",
-      "title": "Review required, the consumer trusts the issuer and a current independent attestation matches the claim digest: usable",
+      "title": "Review required, the consumer trusts the issuer, has authenticated the attestation with the issuer, and it matches the claim digest: usable",
       "manifest": "shop.json",
       "claim": "https://shop.example/claims/payment-methods",
       "task": {
@@ -392,6 +392,9 @@
         "requireReview": true,
         "trustedIssuers": [
           "https://reviewer.example/#org"
+        ],
+        "authenticatedAttestations": [
+          "https://shop.example/claims/payment-methods/attestations/1"
         ]
       },
       "now": "2026-12-01T12:00:00Z",
@@ -913,6 +916,53 @@
         "usable": false,
         "reasons": [
           "scope_not_comparable:occasion"
+        ],
+        "value": null
+      }
+    },
+    {
+      "id": "E44",
+      "title": "A trusted issuer name and a matching digest written in the source, not authenticated by the consumer: not reviewed",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/payment-methods",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#paymentMethods",
+        "scope": {},
+        "requireReview": true,
+        "trustedIssuers": [
+          "https://reviewer.example/#org"
+        ]
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": false,
+        "reasons": [
+          "attestation_not_authenticated"
+        ],
+        "value": null
+      }
+    },
+    {
+      "id": "E45",
+      "title": "An authenticated attestation of an issuer the consumer does not trust: not reviewed",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/payment-methods",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#paymentMethods",
+        "scope": {},
+        "requireReview": true,
+        "trustedIssuers": [
+          "https://other.example/#org"
+        ],
+        "authenticatedAttestations": [
+          "https://shop.example/claims/payment-methods/attestations/1"
+        ]
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": false,
+        "reasons": [
+          "no_valid_independent_attestation"
         ],
         "value": null
       }
