@@ -1,0 +1,421 @@
+{
+  "id": "https://soqver.com/spec/so4ag/0.1/general",
+  "name": "SO4AG General",
+  "version": "0.1-draft",
+  "status": "draft",
+  "description": "Facts a customer asks any organisation before buying, booking or visiting: who operates it, where and when, how to reach it, what it offers and for how much, how to pay, how long things take, how to cancel. Usable in any industry; an industry profile or the publisher's own profile adds what is specific. Every scope key restricts where a claim applies; the value any means all values of that key.",
+  "namespace": "https://soqver.com/spec/so4ag/0.1/general#",
+  "scope_keys": {
+    "country": "ISO 3166-1 alpha-2 country code",
+    "region": "Region or city as named by the publisher",
+    "branch": "URI of the branch or place",
+    "item": "Product, service, plan or event the claim is about: a code or name defined by the publisher and used the same way in all its claims",
+    "per": "What a price is for: piece, hour, day, night, week, month, year, person, session, km, project, order",
+    "customer": "Customer segment: private, business, student, senior, member, any",
+    "channel": "Channel: phone, email, web_form, chat, in_person, app, post, any",
+    "purpose": "Purpose of a contact: sales, booking, support, complaints, billing, press, any",
+    "tariff": "Publisher-defined plan or price-list code",
+    "scheme": "Register, authority or standard that a licence or certification belongs to",
+    "language": "Lowercase ISO 639-1 language code",
+    "period_from": "Start of the period (ISO 8601 date-time with time zone)",
+    "period_until": "End of the period (ISO 8601 date-time with time zone)"
+  },
+  "properties": {
+    "operator": {
+      "label": {
+        "en": "Operator",
+        "cs": "Provozovatel"
+      },
+      "value_types": [
+        "organization"
+      ],
+      "required_scope": [],
+      "max_validity": "P400D",
+      "description": "Legal entity that provides the goods or services, with its registration identifiers."
+    },
+    "location": {
+      "label": {
+        "en": "Location",
+        "cs": "Provozovna"
+      },
+      "value_types": [
+        "place"
+      ],
+      "required_scope": [],
+      "max_validity": "P180D",
+      "description": "A place where customers are served: address and, when known, opening hours in the schema.org form. One claim per place; the place is the subject or the scope key branch."
+    },
+    "contact": {
+      "label": {
+        "en": "Contact",
+        "cs": "Kontakt"
+      },
+      "value_types": [
+        "text"
+      ],
+      "required_scope": [
+        "channel"
+      ],
+      "max_validity": "P180D",
+      "description": "How to reach the organisation through one channel: a phone number in the international form, an e-mail address or an HTTPS address. The scope key purpose narrows it to sales, support and so on."
+    },
+    "serviceHours": {
+      "label": {
+        "en": "Service hours",
+        "cs": "Provozní doba kanálu"
+      },
+      "value_types": [
+        "text"
+      ],
+      "required_scope": [
+        "channel"
+      ],
+      "max_validity": "P90D",
+      "description": "When a channel answers, in the schema.org opening-hours form (Mo-Fr 09:00-17:00). For a place use location instead."
+    },
+    "languages": {
+      "label": {
+        "en": "Languages",
+        "cs": "Jazyky"
+      },
+      "value_types": [
+        "enum_set"
+      ],
+      "required_scope": [],
+      "max_validity": "P400D",
+      "description": "Languages in which customers are served, as lowercase ISO 639-1 codes (cs, en, de)."
+    },
+    "serviceArea": {
+      "label": {
+        "en": "Service area",
+        "cs": "Oblast působnosti"
+      },
+      "value_types": [
+        "enum_set",
+        "text"
+      ],
+      "required_scope": [],
+      "max_validity": "P180D",
+      "description": "Where the organisation delivers or serves: lowercase ISO 3166-1 alpha-2 country codes, or a short text when the area is a region or a radius."
+    },
+    "offers": {
+      "label": {
+        "en": "Offers",
+        "cs": "Nabízí"
+      },
+      "value_types": [
+        "boolean"
+      ],
+      "required_scope": [
+        "item"
+      ],
+      "max_validity": "P90D",
+      "description": "Whether the organisation provides the item named in the scope key item. False is a statement that it does not; when the publisher does not say, the claim is unknown."
+    },
+    "price": {
+      "label": {
+        "en": "Price",
+        "cs": "Cena"
+      },
+      "value_types": [
+        "money"
+      ],
+      "required_scope": [
+        "item"
+      ],
+      "max_validity": "P60D",
+      "description": "Price of the item named in the scope key item. The scope key per says what the amount is for (piece, hour, night, month, person, session, project). A starting price uses bound minimum. Whether tax is included is stated by priceIncludesTax."
+    },
+    "priceIncludesTax": {
+      "label": {
+        "en": "Price includes tax",
+        "cs": "Cena včetně daně"
+      },
+      "value_types": [
+        "boolean"
+      ],
+      "required_scope": [],
+      "max_validity": "P180D",
+      "description": "Whether the published prices include VAT or sales tax for the customer segment in scope."
+    },
+    "paymentMethods": {
+      "label": {
+        "en": "Payment methods",
+        "cs": "Způsoby platby"
+      },
+      "value_types": [
+        "enum_set"
+      ],
+      "enum": [
+        "card",
+        "card_online",
+        "bank_transfer",
+        "cash",
+        "cash_on_delivery",
+        "invoice",
+        "direct_debit",
+        "apple_pay",
+        "google_pay",
+        "paypal",
+        "voucher",
+        "crypto",
+        "other"
+      ],
+      "required_scope": [],
+      "max_validity": "P180D",
+      "description": "Accepted ways to pay."
+    },
+    "depositRequired": {
+      "label": {
+        "en": "Deposit or prepayment",
+        "cs": "Záloha"
+      },
+      "value_types": [
+        "money",
+        "boolean"
+      ],
+      "required_scope": [],
+      "max_validity": "P90D",
+      "description": "Amount paid in advance, or true/false when a deposit is or is not required and the amount depends on the order."
+    },
+    "minimumOrder": {
+      "label": {
+        "en": "Minimum order",
+        "cs": "Minimální objednávka"
+      },
+      "value_types": [
+        "money",
+        "quantity"
+      ],
+      "required_scope": [],
+      "max_validity": "P90D",
+      "description": "Smallest order the organisation accepts, as an amount or a quantity."
+    },
+    "bookingRequired": {
+      "label": {
+        "en": "Booking required",
+        "cs": "Nutná rezervace"
+      },
+      "value_types": [
+        "boolean"
+      ],
+      "required_scope": [],
+      "max_validity": "P90D",
+      "description": "Whether the customer must book or make an appointment in advance."
+    },
+    "bookingLeadTime": {
+      "label": {
+        "en": "Booking lead time",
+        "cs": "Jak dlouho předem objednat"
+      },
+      "value_types": [
+        "quantity"
+      ],
+      "units": [
+        "min",
+        "h",
+        "d",
+        "wk"
+      ],
+      "required_scope": [],
+      "max_validity": "P90D",
+      "description": "How long in advance a booking or order must be made."
+    },
+    "responseTime": {
+      "label": {
+        "en": "Response time",
+        "cs": "Doba odpovědi"
+      },
+      "value_types": [
+        "quantity"
+      ],
+      "units": [
+        "min",
+        "h",
+        "d"
+      ],
+      "required_scope": [],
+      "max_validity": "P90D",
+      "description": "Usual time to a first answer on the channel in scope. Never a guarantee for a specific request."
+    },
+    "deliveryTime": {
+      "label": {
+        "en": "Delivery or completion time",
+        "cs": "Doba dodání nebo provedení"
+      },
+      "value_types": [
+        "quantity",
+        "text"
+      ],
+      "units": [
+        "min",
+        "h",
+        "d",
+        "wk",
+        "mo"
+      ],
+      "required_scope": [],
+      "max_validity": "P60D",
+      "description": "Usual time from order to delivery of goods or completion of the service, or a short text when it cannot be expressed as one number."
+    },
+    "freeCancellation": {
+      "label": {
+        "en": "Free cancellation",
+        "cs": "Storno zdarma"
+      },
+      "value_types": [
+        "quantity",
+        "text"
+      ],
+      "units": [
+        "h",
+        "d"
+      ],
+      "required_scope": [],
+      "max_validity": "P90D",
+      "description": "How long before the agreed time the customer can cancel without a fee, or a short text with the rule."
+    },
+    "cancellationFee": {
+      "label": {
+        "en": "Cancellation fee",
+        "cs": "Storno poplatek"
+      },
+      "value_types": [
+        "money",
+        "text"
+      ],
+      "required_scope": [],
+      "max_validity": "P90D",
+      "description": "Fee for a late cancellation, as an amount or a short text with the rule."
+    },
+    "guarantee": {
+      "label": {
+        "en": "Guarantee",
+        "cs": "Záruka"
+      },
+      "value_types": [
+        "quantity",
+        "text"
+      ],
+      "units": [
+        "d",
+        "mo",
+        "a"
+      ],
+      "required_scope": [],
+      "max_validity": "P180D",
+      "description": "Length of the guarantee or warranty on the item or the work, or a short text with the rule."
+    },
+    "trialPeriod": {
+      "label": {
+        "en": "Trial period",
+        "cs": "Zkušební doba"
+      },
+      "value_types": [
+        "quantity"
+      ],
+      "units": [
+        "d"
+      ],
+      "required_scope": [],
+      "max_validity": "P90D",
+      "description": "How long the item can be tried free of charge before paying."
+    },
+    "acceptsNewCustomers": {
+      "label": {
+        "en": "Accepts new customers",
+        "cs": "Přijímá nové zákazníky"
+      },
+      "value_types": [
+        "boolean"
+      ],
+      "required_scope": [],
+      "max_validity": "P30D",
+      "description": "Whether new customers, clients or patients are accepted now."
+    },
+    "capacity": {
+      "label": {
+        "en": "Capacity",
+        "cs": "Kapacita"
+      },
+      "value_types": [
+        "quantity"
+      ],
+      "units": [
+        "1"
+      ],
+      "required_scope": [],
+      "max_validity": "P180D",
+      "description": "How many people, places or units the item or place holds. Unit 1 means a count."
+    },
+    "minimumAge": {
+      "label": {
+        "en": "Minimum age",
+        "cs": "Minimální věk"
+      },
+      "value_types": [
+        "quantity"
+      ],
+      "units": [
+        "a"
+      ],
+      "required_scope": [],
+      "max_validity": "P400D",
+      "description": "Lowest age of a customer for the item, in years."
+    },
+    "accessibility": {
+      "label": {
+        "en": "Accessibility",
+        "cs": "Přístupnost"
+      },
+      "value_types": [
+        "enum_set"
+      ],
+      "enum": [
+        "wheelchair_access",
+        "step_free_entrance",
+        "accessible_toilet",
+        "accessible_parking",
+        "hearing_loop",
+        "assistance_animals_welcome",
+        "sign_language",
+        "remote_service",
+        "other"
+      ],
+      "required_scope": [],
+      "max_validity": "P400D",
+      "description": "Accessibility features of the place or service."
+    },
+    "licence": {
+      "label": {
+        "en": "Licence or registration",
+        "cs": "Oprávnění nebo registrace"
+      },
+      "value_types": [
+        "text"
+      ],
+      "required_scope": [
+        "scheme"
+      ],
+      "max_validity": "P400D",
+      "description": "A licence, professional registration or certification the organisation holds, with its number. The scope key scheme names the register or the standard."
+    },
+    "availability": {
+      "label": {
+        "en": "Availability",
+        "cs": "Dostupnost"
+      },
+      "value_types": [
+        "boolean"
+      ],
+      "required_scope": [
+        "item",
+        "period_from",
+        "period_until"
+      ],
+      "max_validity": "PT1H",
+      "live": true,
+      "description": "Whether the item is available for the period in scope. A live fact: a publisher without a live connection publishes it as unknown."
+    }
+  }
+}

@@ -30,7 +30,7 @@ The Python reader is on PyPI. The JavaScript package installs straight from this
 
 ```bash
 # JavaScript (Node 20 or newer): validator, reader, command so4ag-validate
-npm install github:soqvercom/so4ag#v0.1.1
+npm install github:soqvercom/so4ag#v0.1.2
 npx so4ag-validate https://example.com/so4ag.json
 
 # Python (3.10 or newer, standard library only): reader, command so4ag
@@ -86,10 +86,30 @@ python readers/python/so4ag_reader.py conformance spec/conformance/0.1
 The Python reader was written separately from the reference validator and shares no code with it.
 Both pass the same conformance suite.
 
+## Any industry
+
+The format is not tied to an industry. What a fact means, its type, unit and conditions are set by a profile, and one
+source may use several profiles together.
+
+| Profile | For whom |
+|---|---|
+| [General](spec/profiles/general-0.1.json) | Any business or organisation: operator, places and opening hours, contacts, languages, what it offers and for how much, payment, booking, response and delivery times, cancellation, guarantee, accessibility, licences, availability (26 properties). |
+| [Rental](spec/profiles/rental-0.1.json), [Retail](spec/profiles/retail-0.1.json) | What is specific to vehicle rental and to online shops. |
+| Your own | Anything else: a JSON file of the same form on your domain ([schema](spec/schema/profile-0.1.schema.json)). You ask nobody and register nothing. |
+
+```bash
+node validator/cli.mjs --check-profile examples/profiles/dental-example-profile.json
+node validator/cli.mjs examples/valid/general-dental.json --profile examples/profiles/dental-example-profile.json
+```
+
+`examples/valid/general-dental.json` is a dental practice described with the General profile plus two properties of its
+own. A reader that does not know a profile still uses its claims when the task states their conditions, and refuses them
+when it does not: the safety rules hold for every profile alike.
+
 ## Write your own reader
 
 The conformance suite in `spec/conformance/0.1/` is plain JSON and needs none of our code: two valid sources in
-three forms, expected digests, 38 evaluation cases, 31 validation cases, 6 whole-source cases and 25 vectors of the
+three forms, expected digests, 43 evaluation cases, 31 validation cases, 6 whole-source cases and 25 vectors of the
 canonical form (RFC 8785). `spec/conformance/0.1/README.md` says when a reader or a validator passes.
 
 ## Hosted read-only endpoints
@@ -107,10 +127,10 @@ The MCP server is listed in the official MCP Registry as `com.soqver/so4ag` (`mc
 
 | Folder | Content |
 |---|---|
-| `spec/` | specification text, JSON Schema, profiles (Rental, Retail) and the conformance suite |
+| `spec/` | specification text, JSON Schema, profiles (General, Rental, Retail), the schema for profiles and the conformance suite |
 | `validator/` | reference validator and reader, JSON-LD mapping, 0.2 draft support, signature check |
 | `readers/python/` | independent reader in Python (standard library only), packaged as `so4ag` |
-| `examples/` | valid example sources |
+| `examples/` | valid example sources and an example of a publisher's own profile |
 | `test/` | tests of the reference code against the conformance suite |
 
 ## Contributing

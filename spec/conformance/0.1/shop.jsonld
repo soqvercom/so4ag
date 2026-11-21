@@ -353,6 +353,34 @@
         },
         {
           "@type": "PropertyValue",
+          "@id": "https://shop.example/claims/gift-wrapping",
+          "propertyID": "https://shop.example/profile#giftWrapping",
+          "name": "giftWrapping",
+          "value": true,
+          "validFrom": "2026-11-01T00:00:00Z",
+          "validThrough": "2026-12-31T00:00:00Z",
+          "so4ag:revision": "1",
+          "so4ag:knowledgeState": "known",
+          "so4ag:assertionBasis": "publisher_asserted",
+          "so4ag:scope": [
+            {
+              "@type": "PropertyValue",
+              "propertyID": "occasion",
+              "value": "christmas"
+            }
+          ],
+          "so4ag:evidence": [
+            {
+              "@type": "so4ag:Evidence",
+              "url": "https://shop.example/darky",
+              "so4ag:observedAt": "2026-11-01T09:00:00Z",
+              "so4ag:kind": "webpage",
+              "so4ag:quote": "O Vánocích balíme dárky zdarma"
+            }
+          ]
+        },
+        {
+          "@type": "PropertyValue",
           "@id": "https://shop.example/claims/return-period-old",
           "propertyID": "https://soqver.com/spec/so4ag/0.1/retail#returnPeriod",
           "name": "returnPeriod",

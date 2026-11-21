@@ -1,0 +1,47 @@
+{
+  "id": "https://dental.example/so4ag-profile",
+  "name": "Example Dental profile",
+  "version": "1",
+  "description": "Two facts specific to a dental practice that the General profile does not cover. Published by the practice at the address in id.",
+  "namespace": "https://dental.example/so4ag-profile#",
+  "scope_keys": {
+    "day_type": "weekday, weekend, public_holiday, any"
+  },
+  "properties": {
+    "contractedInsurers": {
+      "label": {
+        "en": "Contracted health insurers",
+        "cs": "Smluvní zdravotní pojišťovny"
+      },
+      "value_types": [
+        "enum_set"
+      ],
+      "enum": [
+        "vzp",
+        "vozp",
+        "cpzp",
+        "ozp",
+        "zpskoda",
+        "zpmv",
+        "rbp"
+      ],
+      "required_scope": [],
+      "max_validity": "P180D",
+      "description": "Czech health insurers the practice has a contract with, by their usual abbreviations in lowercase."
+    },
+    "emergencySlot": {
+      "label": {
+        "en": "Same-day treatment of acute pain",
+        "cs": "Ošetření akutní bolesti tentýž den"
+      },
+      "value_types": [
+        "boolean"
+      ],
+      "required_scope": [
+        "day_type"
+      ],
+      "max_validity": "P90D",
+      "description": "Whether a patient with acute pain is treated on the day of the call."
+    }
+  }
+}

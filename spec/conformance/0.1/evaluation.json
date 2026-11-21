@@ -291,15 +291,14 @@
     },
     {
       "id": "E15",
-      "title": "Scope key the profile does not define: the claim is not comparable",
+      "title": "Scope key that neither the profile defines nor the task states: the claim is not comparable",
       "manifest": "shop.json",
       "claim": "https://shop.example/claims/ship-cz-courier-saturday",
       "task": {
         "property": "https://soqver.com/spec/so4ag/0.1/retail#shippingPrice",
         "scope": {
           "country": "CZ",
-          "delivery_method": "courier",
-          "delivery_day": "saturday"
+          "delivery_method": "courier"
         }
       },
       "now": "2026-12-01T12:00:00Z",
@@ -827,6 +826,115 @@
           "type": "boolean",
           "value": true
         }
+      }
+    },
+    {
+      "id": "E39",
+      "title": "Scope key outside the profile that the task itself states: comparable, usable",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/ship-cz-courier-saturday",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#shippingPrice",
+        "scope": {
+          "country": "CZ",
+          "delivery_method": "courier",
+          "delivery_day": "saturday"
+        }
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": true,
+        "reasons": [],
+        "value": {
+          "type": "money",
+          "amount": "149.00",
+          "currency": "CZK"
+        }
+      }
+    },
+    {
+      "id": "E40",
+      "title": "The same task with an explicit list of understood keys that leaves the key out: the list wins, not comparable",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/ship-cz-courier-saturday",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#shippingPrice",
+        "scope": {
+          "country": "CZ",
+          "delivery_method": "courier",
+          "delivery_day": "saturday"
+        },
+        "understoodScopeKeys": [
+          "country",
+          "delivery_method"
+        ]
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": false,
+        "reasons": [
+          "scope_not_comparable:delivery_day"
+        ],
+        "value": null
+      }
+    },
+    {
+      "id": "E41",
+      "title": "Property of a profile this reader does not know, task states its scope key: usable",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/gift-wrapping",
+      "task": {
+        "property": "https://shop.example/profile#giftWrapping",
+        "scope": {
+          "occasion": "christmas"
+        }
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": true,
+        "reasons": [],
+        "value": {
+          "type": "boolean",
+          "value": true
+        }
+      }
+    },
+    {
+      "id": "E42",
+      "title": "The same property when the task does not state the scope key: not comparable",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/gift-wrapping",
+      "task": {
+        "property": "https://shop.example/profile#giftWrapping",
+        "scope": {}
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": false,
+        "reasons": [
+          "scope_not_comparable:occasion"
+        ],
+        "value": null
+      }
+    },
+    {
+      "id": "E43",
+      "title": "The same property asked for another value of its scope key: not usable",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/gift-wrapping",
+      "task": {
+        "property": "https://shop.example/profile#giftWrapping",
+        "scope": {
+          "occasion": "birthday"
+        }
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": false,
+        "reasons": [
+          "scope_mismatch:occasion"
+        ],
+        "value": null
       }
     }
   ]

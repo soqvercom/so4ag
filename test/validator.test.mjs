@@ -75,12 +75,16 @@ test('consumer: usable only with matching scope and current validity', () => {
   assert.equal(exp.usable, false); assert.ok(exp.reasons.includes('expired'));
 });
 
-test('consumer: unknown stays unknown, unknown scope key is not comparable', () => {
+test('consumer: unknown stays unknown; a scope key outside the profile is comparable only when the task states it', () => {
   const u = evaluateClaim(base.claims[2], { property: base.claims[2].property, scope: base.claims[2].scope }, { now: NOW });
   assert.equal(u.usable, false); assert.ok(u.reasons.includes('unknown')); assert.equal(u.value, null);
   const c = structuredClone(base.claims[0]); c.scope.loyalty_level = 'gold';
-  const r = evaluateClaim(c, { property: c.property, scope: { branch: c.scope.branch, vehicle_class: 'economy', loyalty_level: 'gold' } }, { now: NOW });
-  assert.ok(r.reasons.includes('scope_not_comparable:loyalty_level'));
+  const silent = evaluateClaim(c, { property: c.property, scope: { branch: c.scope.branch, vehicle_class: 'economy' } }, { now: NOW });
+  assert.ok(silent.reasons.includes('scope_not_comparable:loyalty_level'));
+  const stated = evaluateClaim(c, { property: c.property, scope: { branch: c.scope.branch, vehicle_class: 'economy', loyalty_level: 'gold' } }, { now: NOW });
+  assert.equal(stated.usable, true);
+  const listed = evaluateClaim(c, { property: c.property, scope: { branch: c.scope.branch, vehicle_class: 'economy', loyalty_level: 'gold' }, understoodScopeKeys: ['branch', 'vehicle_class'] }, { now: NOW });
+  assert.ok(listed.reasons.includes('scope_not_comparable:loyalty_level'));
 });
 
 test('consumer: requireReview rejects related-party or stale attestation', () => {

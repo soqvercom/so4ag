@@ -8,6 +8,7 @@ and answers one question: may this claim be used for this task at this time?
   python so4ag_reader.py conformance <dir>      run the conformance suite
   python so4ag_reader.py ask <file> --property <uri-or-name> [--scope k=v ...] [--now ISO]
                                    [--review --trust <issuer-uri> ...] [--extension <uri> ...]
+                                   [--profile <file> ...]   (your own profile documents)
 
 A document of a version this reader does not know is refused, never read by the rules of another version.
 --review without --trust accepts nothing: a matching digest ties an attestation to the wording of a claim,
@@ -104,8 +105,10 @@ def evaluate(claim, task, now, profiles, source_extensions=None, known_extension
         reasons.append("property_mismatch")
     if task.get("subject") and task["subject"] != claim["subject"]:
         reasons.append("subject_mismatch")
-    understood = set(task["understoodScopeKeys"]) if "understoodScopeKeys" in task else scope_keys_of(claim["property"], profiles)
     asked = task.get("scope") or {}
+    # the keys the consumer can compare: its own list, otherwise the keys of the profile that defines the property
+    # plus every key the task gives a value for
+    understood = set(task["understoodScopeKeys"]) if "understoodScopeKeys" in task else scope_keys_of(claim["property"], profiles) | set(asked)
     for key, limit in claim["scope"].items():
         if key not in understood:
             reasons.append("scope_not_comparable:" + key)
@@ -402,6 +405,7 @@ def run_conformance(folder):
 
 def run_ask(argv):
     path, prop, scope, now, review, trust, known = argv[0], None, {}, datetime.now(timezone.utc), False, None, []
+    extra_profiles = []
     i = 1
     while i < len(argv):
         if argv[i] == "--property":
@@ -416,9 +420,11 @@ def run_ask(argv):
             trust = (trust or []) + [argv[i + 1]]; i += 2
         elif argv[i] == "--extension":
             known.append(argv[i + 1]); i += 2
+        elif argv[i] == "--profile":
+            extra_profiles.append(json.loads(Path(argv[i + 1]).read_text(encoding="utf-8"))); i += 2
         else:
             raise SystemExit("unknown argument " + argv[i])
-    profiles = builtin_profiles()
+    profiles = builtin_profiles() + extra_profiles
     try:
         source = read_source(Path(path).read_text(encoding="utf-8"))
     except UnsupportedVersion as err:

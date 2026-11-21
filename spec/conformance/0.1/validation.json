@@ -225,6 +225,31 @@
             }
           },
           {
+            "id": "https://shop.example/claims/gift-wrapping",
+            "revision": "1",
+            "subject": "https://shop.example/#org",
+            "property": "https://shop.example/profile#giftWrapping",
+            "knowledge_state": "known",
+            "scope": {
+              "occasion": "christmas"
+            },
+            "assertion_basis": "publisher_asserted",
+            "valid_from": "2026-11-01T00:00:00Z",
+            "valid_until": "2026-12-31T00:00:00Z",
+            "value": {
+              "type": "boolean",
+              "value": true
+            },
+            "evidence": [
+              {
+                "url": "https://shop.example/darky",
+                "observed_at": "2026-11-01T09:00:00Z",
+                "kind": "webpage",
+                "quote": "O Vánocích balíme dárky zdarma"
+              }
+            ]
+          },
+          {
             "id": "https://shop.example/claims/return-period-old",
             "revision": "1",
             "subject": "https://shop.example/#org",
@@ -2759,6 +2784,31 @@
             }
           },
           {
+            "id": "https://shop.example/claims/gift-wrapping",
+            "revision": "1",
+            "subject": "https://shop.example/#org",
+            "property": "https://shop.example/profile#giftWrapping",
+            "knowledge_state": "known",
+            "scope": {
+              "occasion": "christmas"
+            },
+            "assertion_basis": "publisher_asserted",
+            "valid_from": "2026-11-01T00:00:00Z",
+            "valid_until": "2026-12-31T00:00:00Z",
+            "value": {
+              "type": "boolean",
+              "value": true
+            },
+            "evidence": [
+              {
+                "url": "https://shop.example/darky",
+                "observed_at": "2026-11-01T09:00:00Z",
+                "kind": "webpage",
+                "quote": "O Vánocích balíme dárky zdarma"
+              }
+            ]
+          },
+          {
             "id": "https://shop.example/claims/return-period-old",
             "revision": "1",
             "subject": "https://shop.example/#org",
@@ -3255,6 +3305,31 @@
                 }
               }
             }
+          },
+          {
+            "id": "https://shop.example/claims/gift-wrapping",
+            "revision": "1",
+            "subject": "https://shop.example/#org",
+            "property": "https://shop.example/profile#giftWrapping",
+            "knowledge_state": "known",
+            "scope": {
+              "occasion": "christmas"
+            },
+            "assertion_basis": "publisher_asserted",
+            "valid_from": "2026-11-01T00:00:00Z",
+            "valid_until": "2026-12-31T00:00:00Z",
+            "value": {
+              "type": "boolean",
+              "value": true
+            },
+            "evidence": [
+              {
+                "url": "https://shop.example/darky",
+                "observed_at": "2026-11-01T09:00:00Z",
+                "kind": "webpage",
+                "quote": "O Vánocích balíme dárky zdarma"
+              }
+            ]
           },
           {
             "id": "https://shop.example/claims/return-period-old",

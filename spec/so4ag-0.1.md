@@ -1,6 +1,6 @@
 # SO4AG 0.1 — Source Objects for AGents (draft)
 
-Status: **working draft 0.1**, 2026-11-20, revised 2026-11-21 (see Changelog). Not a W3C, IETF or platform standard. Feedback welcome.
+Status: **working draft 0.1**, 2026-11-20, revised 2026-11-22 (see Changelog). Not a W3C, IETF or platform standard. Feedback welcome.
 Editor: SOQVER project (MAEX). Text licence: CC BY 4.0. Reference code: Apache-2.0. No fee is required to implement.
 
 The namespace is `https://soqver.com/spec/so4ag/0.1/`. Until 20 November 2026 the draft used `https://soqver.botrento.com/spec/so4ag/0.1/`; that host redirects permanently (301) and consumers MUST treat both namespaces as equivalent for 0.1.
@@ -21,7 +21,15 @@ Keywords MUST, MUST NOT, SHOULD and MAY are used as in RFC 2119.
 | **Evidence** | Attestations bound to an exact claim digest, with issuer, method, expiry and status. |
 | **Live** | Short-lived claims for time-sensitive data (availability, quotes), validity typically ≤ 1 hour. |
 
-Domain profiles (e.g. **Rental 0.1**) define properties, allowed value types, units, enumerations, required scope keys and maximum validity.
+A profile defines properties, allowed value types, units, enumerations, scope keys, required scope keys and maximum validity. A source MAY use several profiles together and lists them in `profiles`.
+
+| Profile document | For whom |
+|---|---|
+| **General 0.1** (`general.json`) | Any organisation in any industry: operator, places and opening hours, contacts, languages, what it offers and for how much, payment, booking, response and delivery times, cancellation, guarantee, accessibility, licences, availability. |
+| **Rental 0.1**, **Retail 0.1** | What is specific to vehicle rental and to online shops. |
+| **A publisher's own profile** | Anything else. Anyone MAY publish a profile: a JSON document of the same form (schema `profile.schema.json`) served over HTTPS at the address given in its `id`, with its own `namespace` for property URIs. No registration and no permission is needed. |
+
+A consumer MAY fetch a declared profile from its `id` (HTTPS only, limited size, treated as untrusted data) to learn the labels, value types and scope keys of its properties. A profile document never changes the consumer rules of section 6.
 
 ## 3. Publication and discovery
 
@@ -48,7 +56,7 @@ A claim states one property of one subject under one scope.
 |---|---|
 | `id` | Stable URI. A changed value keeps the id and gets a new `revision`. |
 | `subject` | URI of the thing described (organisation, branch, offer). |
-| `property` | Absolute URI defined by a profile. Unknown properties MAY be ignored. |
+| `property` | Absolute URI defined by a profile: the General profile, a domain profile or the publisher's own. Unknown properties MAY be ignored. |
 | `knowledge_state` | `known`, `unknown` or `not_applicable`. **Unknown is never zero, empty or "no limit".** Only `known` carries a `value`, and `known` MUST carry at least one `evidence` item. |
 | `value` | Typed: `money` (decimal string + ISO 4217 code in use; the amount is written with exactly the number of decimals of the currency: `99.00` CZK, `1500` JPY, `10.125` KWD; optional `bound`: `exact` or `minimum`; a `minimum` amount MUST be presented as a starting amount and never as the exact amount), `quantity` (decimal string + unit), `boolean`, `text` (optional `lang`: a BCP 47 tag of the form language, optional script, optional region, e.g. `cs`, `pt-BR`, `zh-Hant-TW`), `enum`, `enum_set`, `organization`, `place` (optional `opening_hours` in the schema.org form: `Mo-Fr 09:00-18:00; Sa 09:00-12:00`). |
 | `scope` | String map of conditions. **Every scope key restricts the claim.** A claim applies only where all scope keys match the task. The reserved value `any` states explicitly that the claim applies to every value of that key (e.g. one deposit for all branches). |
@@ -65,7 +73,7 @@ Status is not a single list. Knowledge, basis, validity, dispute and attestation
 A consumer that uses a claim to answer a user MUST:
 
 1. check the `so4ag` version before anything else and refuse a document whose version it does not implement, or that states none. A refused document yields no usable claim: it is never read by the rules of another version. Being able to parse the JSON is not a successful reading of a source;
-2. check that subject, property and **all** scope keys match the task. A scope key the consumer does not understand means *cannot safely compare*: the claim MUST NOT be used as if it applied;
+2. check that subject, property and **all** scope keys match the task. A scope key the consumer does not understand means *cannot safely compare*: the claim MUST NOT be used as if it applied. A consumer understands a scope key when a profile it implements defines the key, or when the task it evaluates states a value for that key; a consumer MAY instead state its own list of understood keys, which then is the only list that counts. Scope values are compared as exact strings;
 3. treat a claim as current only when `valid_from ≤ now < valid_until`; otherwise it is historical and MUST NOT be presented as current;
 4. return `unknown` / `not_applicable` as such and never fill in a value;
 5. mention a `dispute` when present and, for important tasks, ask for current confirmation;
@@ -100,6 +108,7 @@ SO4AG reuses schema.org vocabulary where meanings match, maps provenance to W3C 
 
 ## Changelog
 
+- 0.1-draft, revision of 2026-11-22: the format is no longer tied to two industries. Added the **General 0.1** profile for any organisation, the rule that anyone may publish a profile of their own (with a JSON Schema for profile documents), and a precise statement of when a consumer understands a scope key (a key the task states is comparable). Sources that were valid stay valid; a reader now uses a claim with a scope key outside its profiles when the task states that key, where it refused before.
 - 0.1-draft, revision of 2026-11-21, after an external review. Structure: an amount carries the decimals of its currency instead of always two (two-decimal currencies are unchanged); the currency must be an ISO 4217 code in use; `lang` accepts a script and a region. Consumer rules, stated more exactly and now enforced by both readers: an unsupported or missing version is refused; an unknown extension with `affects_use: true` on a claim or on the manifest makes the claim unusable; verification without the consumer's own list of trusted issuers accepts nothing; an attestation counts only between `issued_at` and `expires_at`. The Python reader wrote small numbers in another form than RFC 8785 requires (`1e-06`); corrected, with test vectors.
 - 0.1-draft (2026-11-20): money `bound` (`minimum` for starting amounts) and Rental scope key `vehicle`, both found necessary when a rental states the deposit per car.
 - 0.1-draft (2026-11-20): namespace moved to soqver.com (old host stays equivalent).

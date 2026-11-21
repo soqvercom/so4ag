@@ -2,6 +2,18 @@
 
 Changes of the specification are also listed at the end of `spec/so4ag-0.1.md`.
 
+## 0.1.2 (2026-11-22)
+
+The format is no longer tied to two industries.
+
+- **General profile** (`spec/profiles/general-0.1.json`): 26 properties any organisation can state.
+- **Your own profile**: anyone may publish a profile on their own domain. Schema `spec/schema/profile-0.1.schema.json`,
+  check with `so4ag-validate --check-profile`, use with `--profile` (JavaScript and Python).
+- **Scope keys outside the reader's profiles**: a claim is comparable when the task states the key (it was refused before);
+  an explicit `understoodScopeKeys` list still wins. Sources that were valid stay valid.
+- Conformance suite 0.1.2: 43 evaluation cases (5 new, 1 changed).
+- Example: a dental practice with the General profile and its own profile.
+
 ## 0.1.1 (2026-11-22)
 
 - Both packages install straight from the repository and from the release files (no registry account needed).

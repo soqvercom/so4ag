@@ -11,13 +11,47 @@ const SPEC = join(here, '..', 'spec');
 export const SCHEMA = JSON.parse(readFileSync(join(SPEC, 'schema', 'so4ag-0.1.schema.json'), 'utf8'));
 export const RENTAL = JSON.parse(readFileSync(join(SPEC, 'profiles', 'rental-0.1.json'), 'utf8'));
 export const RETAIL = JSON.parse(readFileSync(join(SPEC, 'profiles', 'retail-0.1.json'), 'utf8'));
+export const GENERAL = JSON.parse(readFileSync(join(SPEC, 'profiles', 'general-0.1.json'), 'utf8'));
+export const PROFILE_SCHEMA = JSON.parse(readFileSync(join(SPEC, 'schema', 'profile-0.1.schema.json'), 'utf8'));
 const LEGACY_HOST = 'https://soqver.botrento.com';   // draft namespace until 2026-11-20, equivalent (spec §0)
 const legacy = (p) => ({ ...p, id: p.id.replace('https://soqver.com', LEGACY_HOST), namespace: p.namespace.replace('https://soqver.com', LEGACY_HOST) });
-export const BUILTIN_PROFILES = { [RENTAL.id]: RENTAL, [legacy(RENTAL).id]: legacy(RENTAL), [RETAIL.id]: RETAIL };
+export const BUILTIN_PROFILES = { [GENERAL.id]: GENERAL, [RENTAL.id]: RENTAL, [legacy(RENTAL).id]: legacy(RENTAL), [RETAIL.id]: RETAIL };
 
 const ajv = new Ajv2020({ allErrors: true, strict: false });
 addFormats(ajv);
 const validateStructure = ajv.compile(SCHEMA);
+const validateProfileStructure = ajv.compile(PROFILE_SCHEMA);
+
+/**
+ * Check a profile document (the General profile, an industry profile or a publisher's own profile).
+ * Returns { valid, errors }. Beyond the schema: required scope keys must be defined, units need the quantity type, enum needs enum or enum_set.
+ */
+export function validateProfile(profile) {
+  const errors = [];
+  if (!validateProfileStructure(profile)) {
+    for (const e of validateProfileStructure.errors) errors.push({ path: e.instancePath || '/', code: 'schema', message: e.message });
+    return { valid: false, errors };
+  }
+  for (const [name, def] of Object.entries(profile.properties)) {
+    const at = `/properties/${name}`;
+    for (const k of def.required_scope || []) if (!(k in profile.scope_keys)) errors.push({ path: `${at}/required_scope`, code: 'scope_key_undefined', message: `scope key ${k} is not defined in scope_keys` });
+    if (def.units && !def.value_types.includes('quantity')) errors.push({ path: `${at}/units`, code: 'units_without_quantity', message: 'units are allowed only with the value type quantity' });
+    if (def.enum && !def.value_types.some((t) => t === 'enum' || t === 'enum_set')) errors.push({ path: `${at}/enum`, code: 'enum_without_type', message: 'enum is allowed only with the value types enum or enum_set' });
+    if (def.max_validity && durationMs(def.max_validity) === null) errors.push({ path: `${at}/max_validity`, code: 'duration', message: 'max_validity is not an ISO 8601 duration' });
+  }
+  return { valid: errors.length === 0, errors };
+}
+
+/** The built-in profiles plus the given profile documents (a publisher's own profiles). Throws when one of them is not a valid profile. */
+export function withProfiles(...extra) {
+  const all = { ...BUILTIN_PROFILES };
+  for (const p of extra.flat()) {
+    const r = validateProfile(p);
+    if (!r.valid) throw new Error(`not a valid SO4AG profile (${p && p.id}): ${r.errors.map((e) => `${e.path} ${e.message}`).join('; ')}`);
+    all[p.id] = p;
+  }
+  return all;
+}
 
 // RFC 8785 (JCS) canonical JSON for the value types used by SO4AG.
 export function canonicalize(v) {
@@ -87,7 +121,7 @@ export function validateManifest(manifest, { profiles = BUILTIN_PROFILES, now = 
   const declared = new Set(manifest.profiles || []);
   const ids = new Set();
   const stats = { claims: manifest.claims.length, known: 0, unknown: 0, not_applicable: 0, current: 0, expired: 0, future: 0, attested: 0, disputed: 0 };
-  for (const p of declared) if (!profiles[p]) warnings.push({ path: '/profiles', code: 'profile_unknown', message: `profile ${p} is not known to this validator` });
+  for (const p of declared) if (!profiles[p]) warnings.push({ path: '/profiles', code: 'profile_unknown', message: `profile ${p} is not known to this validator; pass its document (--profile) to check the claims against it` });
 
   manifest.claims.forEach((c, i) => {
     const at = `/claims/${i}`;
@@ -163,7 +197,9 @@ export function evaluateClaim(claim, task, { now = new Date(), profiles = BUILTI
   if (task.property && claim.property !== task.property) out.reasons.push('property_mismatch');
   if (task.subject && claim.subject !== task.subject) out.reasons.push('subject_mismatch');
   const idx = propertyIndex(profiles);
-  const known = new Set(task.understoodScopeKeys || Object.keys(idx.get(claim.property)?.profile.scope_keys || {}));
+  // Which scope keys the consumer can compare: the list it states, otherwise the keys of the profile that defines the property
+  // plus every key the task itself gives a value for (asking with a key is saying what it means).
+  const known = new Set(task.understoodScopeKeys || [...Object.keys(idx.get(claim.property)?.profile.scope_keys || {}), ...Object.keys(task.scope || {})]);
   for (const [k, v] of Object.entries(claim.scope)) {
     if (!known.has(k)) { out.reasons.push(`scope_not_comparable:${k}`); continue; }
     if (!(k in (task.scope || {}))) { out.reasons.push(`scope_not_in_task:${k}`); continue; }

@@ -1,6 +1,6 @@
 {
   "name": "so4ag",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "description": "SO4AG (Source Objects for AGents): open format for business facts with meaning, scope, origin and validity. Specification, JSON Schema, reference validator and reader.",
   "license": "Apache-2.0",

@@ -4,15 +4,36 @@
 // so4ag-validate <file|https-url> --to-so4ag       print the SO4AG JSON read from JSON-LD or a page (a 0.2 file is expanded to 0.1)
 // so4ag-validate <file|https-url> --to-0.2 [--full] print the short 0.2 form (current view unless --full)
 // so4ag-validate <file> --verify <signature.json> --keys <keys.json>   check a detached signature
+// so4ag-validate <file|https-url> --profile <file|https-url> [--profile …]   check the claims against your own profile too
+// so4ag-validate --check-profile <file|https-url>   check a profile document
 import { readFileSync } from 'node:fs';
-import { validateManifest } from './index.mjs';
+import { validateManifest, validateProfile, withProfiles } from './index.mjs';
 import { manifestToJsonLd, manifestFromJsonLd, manifestsFromHtml } from './jsonld.mjs';
 import { validateAny, toCore, compact02, is02 } from './v02.mjs';
 import { verifySignature } from './sign.mjs';
 
 const args = process.argv.slice(2);
 const opt = (name) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : null; };
-const taken = new Set([opt('--verify'), opt('--keys')].filter(Boolean));
+const optAll = (name) => args.flatMap((a, i) => (a === name && args[i + 1] ? [args[i + 1]] : []));
+const load = async (where) => {
+  if (/^https:\/\//.test(where)) {
+    const r = await fetch(where, { redirect: 'follow', signal: AbortSignal.timeout(15000), headers: { accept: 'application/json' } });
+    if (!r.ok) { console.error(`HTTP ${r.status} for ${where}`); process.exit(2); }
+    const t = await r.text();
+    if (t.length > 1024 * 1024) { console.error('profile larger than 1 MB'); process.exit(2); }
+    return JSON.parse(t);
+  }
+  return JSON.parse(readFileSync(where, 'utf8'));
+};
+if (opt('--check-profile')) {
+  const r = validateProfile(await load(opt('--check-profile')));
+  console.log(r.valid ? 'VALID  SO4AG profile' : 'INVALID');
+  for (const e of r.errors) console.log(`  error   ${e.path}  ${e.code}: ${e.message}`);
+  process.exit(r.valid ? 0 : 1);
+}
+let profiles;
+try { profiles = withProfiles(await Promise.all(optAll('--profile').map(load))); } catch (e) { console.error(e.message); process.exit(2); }
+const taken = new Set([opt('--verify'), opt('--keys'), ...optAll('--profile')].filter(Boolean));
 const target = args.find((a) => !a.startsWith('--') && !taken.has(a));
 if (!target) { console.error('usage: so4ag-validate <file|https-url> [--json | --to-jsonld | --to-so4ag]'); process.exit(2); }
 let text;
@@ -43,7 +64,7 @@ if (opt('--verify')) {
   process.exit(v.valid ? 0 : 1);
 }
 if (is02(m)) form += ' 0.2';
-const { expanded, ...r } = validateAny(m);
+const { expanded, ...r } = validateAny(m, { profiles });
 if (args.includes('--json')) { console.log(JSON.stringify({ form, ...r }, null, 2)); process.exit(r.valid ? 0 : 1); }
 console.log(`${r.valid ? (r.version ? 'VALID  SO4AG 0.2 (draft)' : 'VALID  SO4AG Core 0.1') : 'INVALID'}  (read as ${form})`);
 for (const e of r.errors) console.log(`  error   ${e.path}  ${e.code}: ${e.message}`);

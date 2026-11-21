@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "so4ag"
-version = "0.1.1"
+version = "0.1.2"
 description = "Reader for SO4AG, the open format for business facts with scope, origin and validity: may this fact be used for this task now?"
 readme = "README.md"
 requires-python = ">=3.10"

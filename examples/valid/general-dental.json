@@ -1,0 +1,294 @@
+{
+  "so4ag": "0.1-draft",
+  "id": "https://dental.example/so4ag.json",
+  "revision": "2026-11-22.1",
+  "published_at": "2026-11-22T08:00:00Z",
+  "publisher": {
+    "id": "https://dental.example/#org",
+    "name": "Example Dental",
+    "role": "first_party",
+    "domain": "dental.example"
+  },
+  "profiles": [
+    "https://soqver.com/spec/so4ag/0.1/general",
+    "https://dental.example/so4ag-profile"
+  ],
+  "subjects": [
+    {
+      "id": "https://dental.example/#org",
+      "type": "Dentist",
+      "name": "Example Dental"
+    }
+  ],
+  "claims": [
+    {
+      "id": "https://dental.example/claims/location",
+      "revision": "1",
+      "subject": "https://dental.example/#org",
+      "property": "https://soqver.com/spec/so4ag/0.1/general#location",
+      "knowledge_state": "known",
+      "value": {
+        "type": "place",
+        "name": "Example Dental, Brno",
+        "address": "Kounicova 1, 602 00 Brno",
+        "country": "CZ",
+        "opening_hours": "Mo-Th 08:00-17:00; Fr 08:00-13:00"
+      },
+      "scope": {},
+      "assertion_basis": "publisher_asserted",
+      "evidence": [
+        {
+          "url": "https://dental.example/kontakt",
+          "observed_at": "2026-11-20T09:00:00Z",
+          "kind": "webpage"
+        }
+      ],
+      "valid_from": "2026-11-20T00:00:00Z",
+      "valid_until": "2026-12-31T00:00:00Z"
+    },
+    {
+      "id": "https://dental.example/claims/phone",
+      "revision": "1",
+      "subject": "https://dental.example/#org",
+      "property": "https://soqver.com/spec/so4ag/0.1/general#contact",
+      "knowledge_state": "known",
+      "value": {
+        "type": "text",
+        "value": "+420 500 000 000"
+      },
+      "scope": {
+        "channel": "phone",
+        "purpose": "booking"
+      },
+      "assertion_basis": "publisher_asserted",
+      "evidence": [
+        {
+          "url": "https://dental.example/kontakt",
+          "observed_at": "2026-11-20T09:00:00Z",
+          "kind": "webpage"
+        }
+      ],
+      "valid_from": "2026-11-20T00:00:00Z",
+      "valid_until": "2026-12-31T00:00:00Z"
+    },
+    {
+      "id": "https://dental.example/claims/price-hygiene",
+      "revision": "1",
+      "subject": "https://dental.example/#org",
+      "property": "https://soqver.com/spec/so4ag/0.1/general#price",
+      "knowledge_state": "known",
+      "value": {
+        "type": "money",
+        "amount": "1500.00",
+        "currency": "CZK"
+      },
+      "scope": {
+        "item": "dental-hygiene",
+        "per": "session",
+        "customer": "private"
+      },
+      "assertion_basis": "publisher_asserted",
+      "evidence": [
+        {
+          "url": "https://dental.example/cenik",
+          "observed_at": "2026-11-20T09:00:00Z",
+          "kind": "webpage",
+          "quote": "Dentální hygiena 1 500 Kč"
+        }
+      ],
+      "valid_from": "2026-11-20T00:00:00Z",
+      "valid_until": "2026-12-31T00:00:00Z"
+    },
+    {
+      "id": "https://dental.example/claims/price-whitening",
+      "revision": "1",
+      "subject": "https://dental.example/#org",
+      "property": "https://soqver.com/spec/so4ag/0.1/general#price",
+      "knowledge_state": "known",
+      "value": {
+        "type": "money",
+        "amount": "4900.00",
+        "currency": "CZK",
+        "bound": "minimum"
+      },
+      "scope": {
+        "item": "whitening",
+        "per": "session",
+        "customer": "private"
+      },
+      "assertion_basis": "publisher_asserted",
+      "evidence": [
+        {
+          "url": "https://dental.example/cenik",
+          "observed_at": "2026-11-20T09:00:00Z",
+          "kind": "webpage",
+          "quote": "Bělení zubů od 4 900 Kč"
+        }
+      ],
+      "valid_from": "2026-11-20T00:00:00Z",
+      "valid_until": "2026-12-31T00:00:00Z"
+    },
+    {
+      "id": "https://dental.example/claims/payment",
+      "revision": "1",
+      "subject": "https://dental.example/#org",
+      "property": "https://soqver.com/spec/so4ag/0.1/general#paymentMethods",
+      "knowledge_state": "known",
+      "value": {
+        "type": "enum_set",
+        "values": [
+          "card",
+          "cash",
+          "bank_transfer"
+        ]
+      },
+      "scope": {},
+      "assertion_basis": "publisher_asserted",
+      "evidence": [
+        {
+          "url": "https://dental.example/kontakt",
+          "observed_at": "2026-11-20T09:00:00Z",
+          "kind": "webpage"
+        }
+      ],
+      "valid_from": "2026-11-20T00:00:00Z",
+      "valid_until": "2026-12-31T00:00:00Z"
+    },
+    {
+      "id": "https://dental.example/claims/languages",
+      "revision": "1",
+      "subject": "https://dental.example/#org",
+      "property": "https://soqver.com/spec/so4ag/0.1/general#languages",
+      "knowledge_state": "known",
+      "value": {
+        "type": "enum_set",
+        "values": [
+          "cs",
+          "en"
+        ]
+      },
+      "scope": {},
+      "assertion_basis": "publisher_asserted",
+      "evidence": [
+        {
+          "url": "https://dental.example/kontakt",
+          "observed_at": "2026-11-20T09:00:00Z",
+          "kind": "webpage"
+        }
+      ],
+      "valid_from": "2026-11-20T00:00:00Z",
+      "valid_until": "2027-06-30T00:00:00Z"
+    },
+    {
+      "id": "https://dental.example/claims/new-patients",
+      "revision": "1",
+      "subject": "https://dental.example/#org",
+      "property": "https://soqver.com/spec/so4ag/0.1/general#acceptsNewCustomers",
+      "knowledge_state": "known",
+      "value": {
+        "type": "boolean",
+        "value": true
+      },
+      "scope": {},
+      "assertion_basis": "publisher_asserted",
+      "evidence": [
+        {
+          "url": "https://dental.example/",
+          "observed_at": "2026-11-20T09:00:00Z",
+          "kind": "webpage",
+          "quote": "Přijímáme nové pacienty"
+        }
+      ],
+      "valid_from": "2026-11-20T00:00:00Z",
+      "valid_until": "2026-12-15T00:00:00Z"
+    },
+    {
+      "id": "https://dental.example/claims/cancel",
+      "revision": "1",
+      "subject": "https://dental.example/#org",
+      "property": "https://soqver.com/spec/so4ag/0.1/general#freeCancellation",
+      "knowledge_state": "known",
+      "value": {
+        "type": "quantity",
+        "value": "24",
+        "unit": "h"
+      },
+      "scope": {},
+      "assertion_basis": "publisher_asserted",
+      "evidence": [
+        {
+          "url": "https://dental.example/podminky",
+          "observed_at": "2026-11-20T09:00:00Z",
+          "kind": "webpage"
+        }
+      ],
+      "valid_from": "2026-11-20T00:00:00Z",
+      "valid_until": "2026-12-31T00:00:00Z"
+    },
+    {
+      "id": "https://dental.example/claims/response",
+      "revision": "1",
+      "subject": "https://dental.example/#org",
+      "property": "https://soqver.com/spec/so4ag/0.1/general#responseTime",
+      "knowledge_state": "unknown",
+      "scope": {
+        "channel": "email"
+      },
+      "assertion_basis": "publisher_asserted",
+      "valid_from": "2026-11-20T00:00:00Z",
+      "valid_until": "2026-12-31T00:00:00Z"
+    },
+    {
+      "id": "https://dental.example/claims/insurers",
+      "revision": "1",
+      "subject": "https://dental.example/#org",
+      "property": "https://dental.example/so4ag-profile#contractedInsurers",
+      "knowledge_state": "known",
+      "value": {
+        "type": "enum_set",
+        "values": [
+          "vzp",
+          "ozp",
+          "cpzp"
+        ]
+      },
+      "scope": {},
+      "assertion_basis": "publisher_asserted",
+      "evidence": [
+        {
+          "url": "https://dental.example/pojistovny",
+          "observed_at": "2026-11-20T09:00:00Z",
+          "kind": "webpage",
+          "quote": "Smluvní pojišťovny: VZP, OZP, ČPZP"
+        }
+      ],
+      "valid_from": "2026-11-20T00:00:00Z",
+      "valid_until": "2026-12-31T00:00:00Z"
+    },
+    {
+      "id": "https://dental.example/claims/emergency",
+      "revision": "1",
+      "subject": "https://dental.example/#org",
+      "property": "https://dental.example/so4ag-profile#emergencySlot",
+      "knowledge_state": "known",
+      "value": {
+        "type": "boolean",
+        "value": true
+      },
+      "scope": {
+        "day_type": "weekday"
+      },
+      "assertion_basis": "publisher_asserted",
+      "evidence": [
+        {
+          "url": "https://dental.example/bolest",
+          "observed_at": "2026-11-20T09:00:00Z",
+          "kind": "webpage",
+          "quote": "V pracovní dny ošetříme akutní bolest tentýž den"
+        }
+      ],
+      "valid_from": "2026-11-20T00:00:00Z",
+      "valid_until": "2026-12-31T00:00:00Z"
+    }
+  ]
+}

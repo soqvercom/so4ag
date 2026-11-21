@@ -6,6 +6,7 @@
   "https://shop.example/claims/free-ship-sk": "sha256:ce48020d794be37b38515403e4759e4fdfdea28348d453ada7cda6f6aa5eea53",
   "https://shop.example/claims/delivery-time-cz": "sha256:269d7c03bd2e0fef94ee19fc47d773f860544c61e7770115d53b1dca5cf495ad",
   "https://shop.example/claims/delivery-time-sk": "sha256:16e4d43d964dbf42835fed537d62f70fe6a1c36b893f5c9c1932851d5c1e2a96",
+  "https://shop.example/claims/gift-wrapping": "sha256:b748a0e885e9e1b4d2e3059758c3618bcbc48334c1e9daf6964d53e455d603c7",
   "https://shop.example/claims/return-period-old": "sha256:3250747f2f894b32ea136dc65ee96e5b9ef2e1a1c736b6c610cc92e59cb26b36",
   "https://shop.example/claims/return-period-next": "sha256:043d59e125fcd0a70c68a6792778a112d67e4dd13974d84b8317a56cbd30fdc9",
   "https://shop.example/claims/warranty": "sha256:60865d98daa95c9dcc686f96a97a4bf2ad6e2694fdaa6ab166f13e82edac6eba",
