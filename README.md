@@ -3,6 +3,8 @@
 [![test](https://github.com/soqvercom/so4ag/actions/workflows/test.yml/badge.svg)](https://github.com/soqvercom/so4ag/actions/workflows/test.yml)
 [![code: Apache-2.0](https://img.shields.io/badge/code-Apache--2.0-blue)](LICENSE)
 [![spec: CC BY 4.0](https://img.shields.io/badge/spec-CC%20BY%204.0-blue)](LICENSE-SPEC.md)
+[![PyPI](https://img.shields.io/pypi/v/so4ag)](https://pypi.org/project/so4ag/)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24429989.svg)](https://doi.org/10.5281/zenodo.24429989)
 [![MCP Registry](https://img.shields.io/badge/MCP%20Registry-com.soqver%2Fso4ag-blue)](https://registry.modelcontextprotocol.io/v0.1/servers?search=soqver)
 
 SO4AG is an open format for business facts that AI agents can rely on. A fact is published together with
@@ -24,7 +26,7 @@ a source on their own domain without it.
 
 ## Install
 
-Both packages install straight from this repository; no registry account is needed.
+The Python reader is on PyPI. The JavaScript package installs straight from this repository.
 
 ```bash
 # JavaScript (Node 20 or newer): validator, reader, command so4ag-validate
@@ -32,7 +34,7 @@ npm install github:soqvercom/so4ag#v0.1.1
 npx so4ag-validate https://example.com/so4ag.json
 
 # Python (3.10 or newer, standard library only): reader, command so4ag
-pip install https://github.com/soqvercom/so4ag/releases/download/v0.1.1/so4ag-0.1.1-py3-none-any.whl
+pip install so4ag
 so4ag ask so4ag.json --property refundableDeposit --scope vehicle_class=economy
 ```
 
@@ -115,6 +117,11 @@ The MCP server is listed in the official MCP Registry as `com.soqver/so4ag` (`mc
 
 Questions, errors in the specification and proposals for the format are welcome as issues. See `CONTRIBUTING.md`
 for how the format changes and `SECURITY.md` for reporting a vulnerability.
+
+## Cite
+
+SOQVER. SO4AG: open format for business facts AI agents can rely on. Zenodo. https://doi.org/10.5281/zenodo.24429989
+(the DOI always points to the latest release; each release has its own DOI on the same page).
 
 ## Licence
 
