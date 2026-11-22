@@ -34,7 +34,7 @@ A reader finds the node with `additionalType` `so4ag:Source`, then reads every `
 | `links` | `so4ag:links` (list of `PropertyValue`: `propertyID` = key, `value` = address) |
 | `extensions` | `so4ag:extensions` (JSON literal) |
 
-`mainEntity` is informative. The source node carries no `expires`: validity belongs to each claim (`validThrough`). The first draft put the earliest `valid_until` there; in the comparison test a model then treated the whole document as expired, so the property was removed on 21 November 2026.
+`mainEntity` is informative. The source node carries no `expires`: validity belongs to each claim (`validThrough`). The first draft put the earliest `valid_until` there; a reader can then take the whole document for expired, so the property was removed on 21 November 2026.
 
 ### Claim
 

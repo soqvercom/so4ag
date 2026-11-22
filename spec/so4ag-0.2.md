@@ -6,7 +6,7 @@ A 0.2 file says the same thing as a 0.1 file. Every 0.2 file expands to a 0.1 ma
 
 ## Why a second version
 
-Two runs of the comparison test (online shops and vehicle rentals, three models, 639 tasks) showed two things the first version did not handle well:
+Reading 0.1 sources with language models showed two things the first version does not handle well:
 
 1. Models made most of their errors where an old value, the current value and an announced value stood side by side. A source that carried only what is valid now was read correctly far more often.
 2. Files grow quickly. A rental source with 90 claims repeats the same subject, basis and validity 90 times.
