@@ -88,6 +88,13 @@ function propertyIndex(profiles) {
 // opening hours in the schema.org form: Mo-Fr 09:00-18:00; Sa 09:00-12:00
 const OPENING_HOURS = /^(?:Mo|Tu|We|Th|Fr|Sa|Su)(?:-(?:Mo|Tu|We|Th|Fr|Sa|Su))?(?:,(?:Mo|Tu|We|Th|Fr|Sa|Su)(?:-(?:Mo|Tu|We|Th|Fr|Sa|Su))?)* (?:[01]\d|2[0-4]):[0-5]\d-(?:[01]\d|2[0-4]):[0-5]\d(?:; (?:Mo|Tu|We|Th|Fr|Sa|Su)(?:-(?:Mo|Tu|We|Th|Fr|Sa|Su))?(?:,(?:Mo|Tu|We|Th|Fr|Sa|Su)(?:-(?:Mo|Tu|We|Th|Fr|Sa|Su))?)* (?:[01]\d|2[0-4]):[0-5]\d-(?:[01]\d|2[0-4]):[0-5]\d)*$/;
 
+/** Edition of the rules this reader implements: the format version says how a document is written, the edition says how a
+ *  reader decides. Every edition is an immutable tag of the public repository with its own conformance suite. */
+export const SPEC_EDITION = '0.1.4';
+/** The live rule of the 0.2 draft, carried as a source extension: listed properties must not be used older than max_age. */
+export const LIVE_EXT = 'https://soqver.com/spec/so4ag/0.2/terms#live';
+const instantOf = (x) => (x instanceof Date ? x.getTime() : Date.parse(x ?? ''));
+
 /** Versions of the format this implementation reads. A document with any other version is not evaluated at all. */
 export const SUPPORTED_VERSIONS = ['0.1-draft'];
 /** Is this a version the reader may evaluate? Reading the JSON alone is not a successful reading of a source. */
@@ -192,8 +199,9 @@ export function validateManifest(manifest, { profiles = BUILTIN_PROFILES, now = 
  * An extension marked affects_use that the consumer does not implement makes the claim unusable.
  * requireReview needs an explicit list of trusted issuers: without that policy nothing counts as independently reviewed.
  */
-export function evaluateClaim(claim, task, { now = new Date(), profiles = BUILTIN_PROFILES, knownExtensions = [], sourceExtensions = null } = {}) {
-  const out = { usable: false, reasons: [], value: null, state: claim?.knowledge_state };
+export function evaluateClaim(claim, task, { now = new Date(), profiles = BUILTIN_PROFILES, knownExtensions = [], sourceExtensions = null, sourcePublishedAt = null, liveCheckedAt = null } = {}) {
+  // reasons block the use; warnings are reported and leave the decision to the consumer
+  const out = { usable: false, reasons: [], warnings: [], value: null, state: claim?.knowledge_state };
   // This function expects a claim of a source that passed validateManifest (selectClaims checks that). A claim that is
   // visibly malformed is still never usable: no decision is made on dates or a scope that cannot be read.
   const wellFormed = claim && typeof claim === 'object' && claim.scope && typeof claim.scope === 'object' && !Array.isArray(claim.scope)
@@ -215,10 +223,21 @@ export function evaluateClaim(claim, task, { now = new Date(), profiles = BUILTI
   const t = now.getTime();
   if (t < Date.parse(claim.valid_from)) out.reasons.push('not_yet_valid');
   if (t >= Date.parse(claim.valid_until)) out.reasons.push('expired');
-  if (claim.dispute) out.reasons.push('disputed');
+  // A disputed claim is reported. It blocks the use only when the task says so (a decision, not a quotation with a caveat).
+  if (claim.dispute) (task.refuseDisputed ? out.reasons : out.warnings).push('disputed');
   if (claim.knowledge_state !== 'known') out.reasons.push(claim.knowledge_state);
   for (const [uri, ext] of [...Object.entries(sourceExtensions || {}), ...Object.entries(claim.extensions || {})]) {
-    if (ext && ext.affects_use === true && !knownExtensions.includes(uri)) out.reasons.push(`unknown_required_extension:${uri}`);
+    if (ext && ext.affects_use === true && uri !== LIVE_EXT && !knownExtensions.includes(uri)) out.reasons.push(`unknown_required_extension:${uri}`);
+  }
+  // Live rule: a property the publisher lists as live is usable only while the copy in hand is younger than max_age.
+  // The age runs from the publication of the source, or from the moment the consumer says it asked the live endpoint.
+  // Fetching is not done here: without a fresh copy the answer is needs_refresh, never a stale value.
+  const liveRules = sourceExtensions?.[LIVE_EXT]?.value;
+  const liveRule = Array.isArray(liveRules) ? liveRules.find((l) => l && l.property === claim.property) : null;
+  if (liveRule) {
+    const max = durationMs(liveRule.max_age);
+    const asOf = instantOf(liveCheckedAt ?? sourcePublishedAt);
+    if (!(max > 0) || !Number.isFinite(asOf) || asOf > t + 5 * 60e3 || t - asOf > max) out.reasons.push('needs_refresh');
   }
   if (task.requireReview) {
     if (!Array.isArray(task.trustedIssuers)) out.reasons.push('no_trust_policy');
@@ -235,8 +254,7 @@ export function evaluateClaim(claim, task, { now = new Date(), profiles = BUILTI
       else if (!matching.some((a) => authenticated.includes(a.id))) out.reasons.push('attestation_not_authenticated');
     }
   }
-  const blocking = out.reasons.filter((r) => r !== 'disputed');
-  out.usable = blocking.length === 0;
+  out.usable = out.reasons.length === 0;
   if (out.usable) out.value = claim.value;
   return out;
 }
@@ -244,29 +262,37 @@ export function evaluateClaim(claim, task, { now = new Date(), profiles = BUILTI
 /**
  * The safe way to read a source: pick the claims for a property and a task scope; returns the evaluated list, usable first.
  * The source is checked first (version, then validateManifest); a source that fails yields no usable claim (invalid_source).
- * Two current claims that state different values for the same subject, property and scope are both refused
- * (conflicting_claims): the reader never picks a winner silently.
+ * When several usable claims answer the same subject and property with different values, the most specific one wins
+ * (its scope limits every key the others limit, and more); the others get less_specific. When no claim is the most
+ * specific, or the most specific ones disagree, all of them are refused (conflicting_claims): no silent winner.
  * opts.validated = true skips the check for a source the caller has validated already.
  */
 export function selectClaims(manifest, task, opts = {}) {
   const version = checkVersion(manifest);
   const claims = Array.isArray(manifest?.claims) ? manifest.claims : [];
   const refuse = (code) => claims.filter((c) => !task.property || c?.property === task.property)
-    .map((c) => ({ claim: c, result: { usable: false, reasons: [code], value: null, state: c?.knowledge_state } }));
+    .map((c) => ({ claim: c, result: { usable: false, reasons: [code], warnings: [], value: null, state: c?.knowledge_state } }));
   // a source of a version this reader does not know is never evaluated by the rules of another version
   if (!version.ok) return refuse(version.code);
   if (!opts.validated && !validateManifest(manifest, { profiles: opts.profiles || BUILTIN_PROFILES, now: opts.now || new Date() }).valid) return refuse('invalid_source');
   const out = claims
     .filter((c) => !task.property || c.property === task.property)
-    .map((c) => ({ claim: c, result: evaluateClaim(c, task, { ...opts, sourceExtensions: manifest.extensions || null }) }));
+    .map((c) => ({ claim: c, result: evaluateClaim(c, task, { ...opts, sourceExtensions: manifest.extensions || null, sourcePublishedAt: manifest.published_at ?? null }) }));
   const groups = new Map();
   for (const x of out.filter((y) => y.result.usable)) {
-    const key = canonicalize([x.claim.subject, x.claim.property, x.claim.scope]);
+    const key = canonicalize([x.claim.subject, x.claim.property]);
     groups.set(key, [...(groups.get(key) || []), x]);
   }
+  const refuse1 = (x, code) => { x.result = { ...x.result, usable: false, value: null, reasons: [...x.result.reasons, code] }; };
   for (const g of groups.values()) {
-    if (new Set(g.map((x) => canonicalize(x.claim.value))).size < 2) continue;
-    for (const x of g) x.result = { ...x.result, usable: false, value: null, reasons: [...x.result.reasons, 'conflicting_claims'] };
+    if (new Set(g.map((x) => canonicalize(x.claim.value))).size < 2) continue;      // they all say the same
+    // the keys a claim really limits ("any" limits nothing); every usable claim agrees with the task on them
+    const limits = g.map((x) => Object.entries(x.claim.scope).filter(([, v]) => v !== 'any').map(([k]) => k));
+    const within = (a, b) => a.every((k) => b.includes(k));
+    const top = g.filter((_, i) => !g.some((__, j) => j !== i && limits[j].length > limits[i].length && within(limits[i], limits[j])));
+    const ordered = new Set(top.map((x) => canonicalize(x.claim.value))).size === 1
+      && g.every((x, i) => top.includes(x) || top.every((y) => within(limits[i], limits[g.indexOf(y)])));
+    for (const x of g) { if (!ordered) refuse1(x, 'conflicting_claims'); else if (!top.includes(x)) refuse1(x, 'less_specific'); }
   }
   return out.sort((a, b) => Number(b.result.usable) - Number(a.result.usable));
 }

@@ -1,0 +1,258 @@
+{
+  "note": "A 0.2 file, one task, and what every reader must answer. A reader that cannot apply the live rule must not use the claim.",
+  "edition": "0.1.4",
+  "cases": [
+    {
+      "now": "2026-12-01T12:00:00.000Z",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+        "scope": {}
+      },
+      "id": "R01",
+      "title": "A property listed as live, the file is four hours old and max_age is one hour: needs_refresh, the stored value is not used",
+      "document": {
+        "so4ag": "0.2-draft",
+        "id": "https://rental.example/so4ag.json",
+        "revision": "7",
+        "published_at": "2026-12-01T08:00:00Z",
+        "publisher": {
+          "id": "https://rental.example/#org",
+          "name": "Example Rental",
+          "role": "first_party",
+          "domain": "rental.example"
+        },
+        "profiles": [
+          "https://soqver.com/spec/so4ag/0.1/rental"
+        ],
+        "view": "full",
+        "live": [
+          {
+            "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+            "endpoint": "https://rental.example/live",
+            "protocol": "so4ag-claims",
+            "max_age": "PT1H"
+          }
+        ],
+        "claims": [
+          {
+            "id": "https://rental.example/claims/cancellation",
+            "subject": "https://rental.example/#org",
+            "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+            "knowledge_state": "known",
+            "scope": {},
+            "assertion_basis": "publisher_asserted",
+            "evidence": [
+              {
+                "url": "https://rental.example/terms",
+                "observed_at": "2026-11-01T09:00:00Z",
+                "kind": "webpage"
+              }
+            ],
+            "valid_from": "2026-11-01T00:00:00Z",
+            "valid_until": "2026-12-31T00:00:00Z",
+            "value": {
+              "type": "quantity",
+              "value": "48",
+              "unit": "h"
+            }
+          }
+        ]
+      },
+      "claims": {
+        "/cancellation": {
+          "usable": false,
+          "reasons": [
+            "needs_refresh"
+          ]
+        }
+      }
+    },
+    {
+      "now": "2026-12-01T12:00:00.000Z",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+        "scope": {}
+      },
+      "id": "R02",
+      "title": "The same file published thirty minutes ago: usable",
+      "document": {
+        "so4ag": "0.2-draft",
+        "id": "https://rental.example/so4ag.json",
+        "revision": "7",
+        "published_at": "2026-12-01T11:30:00Z",
+        "publisher": {
+          "id": "https://rental.example/#org",
+          "name": "Example Rental",
+          "role": "first_party",
+          "domain": "rental.example"
+        },
+        "profiles": [
+          "https://soqver.com/spec/so4ag/0.1/rental"
+        ],
+        "view": "full",
+        "live": [
+          {
+            "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+            "endpoint": "https://rental.example/live",
+            "protocol": "so4ag-claims",
+            "max_age": "PT1H"
+          }
+        ],
+        "claims": [
+          {
+            "id": "https://rental.example/claims/cancellation",
+            "subject": "https://rental.example/#org",
+            "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+            "knowledge_state": "known",
+            "scope": {},
+            "assertion_basis": "publisher_asserted",
+            "evidence": [
+              {
+                "url": "https://rental.example/terms",
+                "observed_at": "2026-11-01T09:00:00Z",
+                "kind": "webpage"
+              }
+            ],
+            "valid_from": "2026-11-01T00:00:00Z",
+            "valid_until": "2026-12-31T00:00:00Z",
+            "value": {
+              "type": "quantity",
+              "value": "48",
+              "unit": "h"
+            }
+          }
+        ]
+      },
+      "claims": {
+        "/cancellation": {
+          "usable": true
+        }
+      }
+    },
+    {
+      "now": "2026-12-01T12:00:00.000Z",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+        "scope": {}
+      },
+      "id": "R03",
+      "title": "The old file again, the consumer states it asked the live endpoint ten minutes ago: usable",
+      "document": {
+        "so4ag": "0.2-draft",
+        "id": "https://rental.example/so4ag.json",
+        "revision": "7",
+        "published_at": "2026-12-01T08:00:00Z",
+        "publisher": {
+          "id": "https://rental.example/#org",
+          "name": "Example Rental",
+          "role": "first_party",
+          "domain": "rental.example"
+        },
+        "profiles": [
+          "https://soqver.com/spec/so4ag/0.1/rental"
+        ],
+        "view": "full",
+        "live": [
+          {
+            "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+            "endpoint": "https://rental.example/live",
+            "protocol": "so4ag-claims",
+            "max_age": "PT1H"
+          }
+        ],
+        "claims": [
+          {
+            "id": "https://rental.example/claims/cancellation",
+            "subject": "https://rental.example/#org",
+            "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+            "knowledge_state": "known",
+            "scope": {},
+            "assertion_basis": "publisher_asserted",
+            "evidence": [
+              {
+                "url": "https://rental.example/terms",
+                "observed_at": "2026-11-01T09:00:00Z",
+                "kind": "webpage"
+              }
+            ],
+            "valid_from": "2026-11-01T00:00:00Z",
+            "valid_until": "2026-12-31T00:00:00Z",
+            "value": {
+              "type": "quantity",
+              "value": "48",
+              "unit": "h"
+            }
+          }
+        ]
+      },
+      "liveCheckedAt": "2026-12-01T11:50:00Z",
+      "claims": {
+        "/cancellation": {
+          "usable": true
+        }
+      }
+    },
+    {
+      "now": "2026-12-01T12:00:00.000Z",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+        "scope": {}
+      },
+      "id": "R04",
+      "title": "The live rule names another property: this claim is not affected",
+      "document": {
+        "so4ag": "0.2-draft",
+        "id": "https://rental.example/so4ag.json",
+        "revision": "7",
+        "published_at": "2026-12-01T08:00:00Z",
+        "publisher": {
+          "id": "https://rental.example/#org",
+          "name": "Example Rental",
+          "role": "first_party",
+          "domain": "rental.example"
+        },
+        "profiles": [
+          "https://soqver.com/spec/so4ag/0.1/rental"
+        ],
+        "view": "full",
+        "live": [
+          {
+            "property": "https://soqver.com/spec/so4ag/0.1/rental#refundableDeposit",
+            "endpoint": "https://rental.example/live",
+            "protocol": "so4ag-claims",
+            "max_age": "PT1H"
+          }
+        ],
+        "claims": [
+          {
+            "id": "https://rental.example/claims/cancellation",
+            "subject": "https://rental.example/#org",
+            "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+            "knowledge_state": "known",
+            "scope": {},
+            "assertion_basis": "publisher_asserted",
+            "evidence": [
+              {
+                "url": "https://rental.example/terms",
+                "observed_at": "2026-11-01T09:00:00Z",
+                "kind": "webpage"
+              }
+            ],
+            "valid_from": "2026-11-01T00:00:00Z",
+            "valid_until": "2026-12-31T00:00:00Z",
+            "value": {
+              "type": "quantity",
+              "value": "48",
+              "unit": "h"
+            }
+          }
+        ]
+      },
+      "claims": {
+        "/cancellation": {
+          "usable": true
+        }
+      }
+    }
+  ]
+}

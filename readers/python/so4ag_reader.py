@@ -10,13 +10,16 @@ and answers one question: may this claim be used for this task at this time?
                                    [--review --trust <issuer-uri> ... --authenticated <attestation-id> ...]
                                    [--extension <uri> ...]
                                    [--profile <file> ...]   (your own profile documents)
+                                   [--refuse-disputed] [--live-checked-at ISO]
 
 A document of a version this reader does not know is refused, never read by the rules of another version.
 --review without --trust accepts nothing: a matching digest ties an attestation to the wording of a claim,
 it says nothing about who issued it. Whom to trust is the decision of the consumer, and a trusted name written in
 the source is not a proof: an attestation counts only when the consumer has authenticated it with the issuer and
-passes its id with --authenticated. A source with a malformed claim is refused as a whole, and two current claims
-that state different values for the same subject, property and scope are both refused.
+passes its id with --authenticated. A source with a malformed claim is refused as a whole. When several usable claims
+answer one question with different values, the most specific one is used; when none is the most specific, all are
+refused. A property the publisher lists as live is not used from a copy older than its max_age (needs_refresh).
+A disputed claim is reported as a warning; a task with refuseDisputed makes it a reason.
 """
 import hashlib
 import json
@@ -27,6 +30,27 @@ from pathlib import Path
 
 SOURCE_TYPES = ("so4ag:Source", "https://soqver.com/spec/so4ag/0.1/terms#Source")
 SUPPORTED_VERSIONS = ("0.1-draft", "0.2-draft")
+# Edition of the rules this reader implements: the format version says how a document is written, the edition says how a
+# reader decides. Every edition is an immutable tag of the public repository with its own conformance suite.
+SPEC_EDITION = "0.1.4"
+LIVE_EXT = "https://soqver.com/spec/so4ag/0.2/terms#live"
+USAGE_EXT = "https://soqver.com/spec/so4ag/0.2/terms#usage"
+
+# ISO 4217 codes in use and the number of decimals an amount is written with
+_CUR = "AED AFN ALL AMD ANG AOA ARS AUD AWG AZN BAM BBD BDT BGN BHD BIF BMD BND BOB BRL BSD BTN BWP BYN BZD CAD CDF CHF CLF CLP CNY COP CRC CUP CVE CZK DJF DKK DOP DZD EGP ERN ETB EUR FJD FKP GBP GEL GHS GIP GMD GNF GTQ GYD HKD HNL HTG HUF IDR ILS INR IQD IRR ISK JMD JOD JPY KES KGS KHR KMF KPW KRW KWD KYD KZT LAK LBP LKR LRD LSL LYD MAD MDL MGA MKD MMK MNT MOP MRU MUR MVR MWK MXN MYR MZN NAD NGN NIO NOK NPR NZD OMR PAB PEN PGK PHP PKR PLN PYG QAR RON RSD RUB RWF SAR SBD SCR SDG SEK SGD SHP SLE SOS SRD SSP STN SYP SZL THB TJS TMT TND TOP TRY TTD TWD TZS UAH UGX USD UYU UYW UZS VES VND VUV WST XAF XCD XOF XPF YER ZAR ZMW ZWG"
+CURRENCY_DECIMALS = {c: 2 for c in _CUR.split()}
+CURRENCY_DECIMALS.update({c: 0 for c in "BIF CLP DJF GNF ISK JPY KMF KRW PYG RWF UGX VND VUV XAF XOF XPF".split()})
+CURRENCY_DECIMALS.update({c: 3 for c in "BHD IQD JOD KWD LYD OMR TND".split()})
+CURRENCY_DECIMALS.update({"CLF": 4, "UYW": 4})
+
+
+def duration_seconds(text):
+    """ISO 8601 duration such as PT1H or P30D -> seconds, or None."""
+    m = re.fullmatch(r"P(?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)W)?(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)?", text or "")
+    if not m:
+        return None
+    y, mo, w, d, h, mi, sec = (int(x or 0) for x in m.groups())
+    return ((((y * 365 + mo * 30 + w * 7 + d) * 24 + h) * 60 + mi) * 60) + sec
 
 
 class UnsupportedVersion(ValueError):
@@ -60,7 +84,18 @@ def well_formed(claim):
         if not instant(claim["valid_until"]) > instant(claim["valid_from"]):
             return False
         if claim["knowledge_state"] == "known":
-            return claim.get("value") is not None and isinstance(claim.get("evidence"), list) and len(claim["evidence"]) > 0
+            value = claim.get("value")
+            if value is None or not isinstance(claim.get("evidence"), list) or len(claim["evidence"]) == 0:
+                return False
+            if isinstance(value, dict) and value.get("type") == "money":
+                # an amount in a currency that does not exist, or with other decimals than the currency has, is not a price
+                decimals = CURRENCY_DECIMALS.get(value.get("currency"))
+                amount = value.get("amount")
+                if decimals is None or not isinstance(amount, str) or not re.fullmatch(r"\d+(?:\.\d+)?", amount):
+                    return False
+                if len(amount.partition(".")[2]) != decimals:
+                    return False
+            return True
         return "value" not in claim
     except (ValueError, TypeError, KeyError):
         return False
@@ -135,15 +170,36 @@ def scope_keys_of(property_uri, profiles):
     return set()
 
 
-def evaluate(claim, task, now, profiles, source_extensions=None, known_extensions=()):
-    """Returns (usable, reasons, value). `disputed` is reported but does not block.
-    known_extensions: URIs of the extensions this consumer implements; source_extensions: `extensions` of the whole source."""
+def warnings_of(claim, task=None):
+    """What is reported about a claim without blocking its use. A dispute is a warning unless the task refuses disputed claims."""
+    return ["disputed"] if claim.get("dispute") and not (task or {}).get("refuseDisputed") else []
+
+
+def evaluate(claim, task, now, profiles, source_extensions=None, known_extensions=(), published_at=None, live_checked_at=None):
+    """Returns (usable, reasons, value). Every reason blocks the use; see warnings_of() for what is only reported.
+    known_extensions: URIs of the extensions this consumer implements; source_extensions: `extensions` of the whole source.
+    published_at: when the source in hand was published; live_checked_at: when the consumer asked the live endpoint."""
     if not well_formed(claim):
         return False, ["invalid_claim"], None
     reasons = []
     for uri, ext in list((source_extensions or {}).items()) + list((claim.get("extensions") or {}).items()):
-        if isinstance(ext, dict) and ext.get("affects_use") is True and uri not in known_extensions:
+        if isinstance(ext, dict) and ext.get("affects_use") is True and uri != LIVE_EXT and uri not in known_extensions:
             reasons.append("unknown_required_extension:" + uri)
+    # Live rule: a property the publisher lists as live is usable only while the copy in hand is younger than max_age.
+    # No fetching happens here: without a fresh copy the answer is needs_refresh, never a stale value.
+    live = ((source_extensions or {}).get(LIVE_EXT) or {}).get("value")
+    rule = next((l for l in live if isinstance(l, dict) and l.get("property") == claim["property"]), None) if isinstance(live, list) else None
+    if rule is not None:
+        limit = duration_seconds(rule.get("max_age"))
+        try:
+            as_of = live_checked_at or published_at
+            as_of = instant(as_of) if isinstance(as_of, str) else as_of
+            age = (now - as_of).total_seconds()
+            fresh = bool(limit) and -300 <= age <= limit
+        except (TypeError, ValueError, AttributeError):
+            fresh = False
+        if not fresh:
+            reasons.append("needs_refresh")
     if task.get("property") and task["property"] != claim["property"]:
         reasons.append("property_mismatch")
     if task.get("subject") and task["subject"] != claim["subject"]:
@@ -163,7 +219,7 @@ def evaluate(claim, task, now, profiles, source_extensions=None, known_extension
         reasons.append("not_yet_valid")
     if now >= instant(claim["valid_until"]):
         reasons.append("expired")
-    if claim.get("dispute"):
+    if claim.get("dispute") and task.get("refuseDisputed"):
         reasons.append("disputed")
     if claim["knowledge_state"] != "known":
         reasons.append(claim["knowledge_state"])
@@ -187,29 +243,40 @@ def evaluate(claim, task, now, profiles, source_extensions=None, known_extension
                 reasons.append("no_valid_independent_attestation")
             elif not any(a.get("id") in authenticated for a in matching):
                 reasons.append("attestation_not_authenticated")
-    usable = all(r == "disputed" for r in reasons)
+    usable = not reasons
     return usable, sorted(reasons), (claim.get("value") if usable else None)
 
 
-def select(claims, task, now, profiles, source_extensions=None, known_extensions=()):
-    """Evaluates every claim that matches the property of the task and refuses conflicts: two usable claims that state
-    different values for the same subject, property and scope. Returns [(claim, usable, reasons, value)], usable first."""
+def select(claims, task, now, profiles, source_extensions=None, known_extensions=(), published_at=None, live_checked_at=None):
+    """Evaluates every claim that matches the property of the task. When several usable claims answer the same subject and
+    property with different values, the most specific one wins (its scope limits every key the others limit, and more) and
+    the others get less_specific; when no claim is the most specific, or the most specific ones disagree, all are refused
+    (conflicting_claims). Returns [(claim, usable, reasons, value)], usable first."""
     prop = task.get("property")
     rows = []
     for c in claims:
         if prop and c.get("property") != prop:
             continue
-        usable, reasons, value = evaluate(c, task, now, profiles, source_extensions, known_extensions)
+        usable, reasons, value = evaluate(c, task, now, profiles, source_extensions, known_extensions, published_at, live_checked_at)
         rows.append([c, usable, reasons, value])
     groups = {}
     for row in rows:
         if row[1]:
             c = row[0]
-            groups.setdefault(canonical([c["subject"], c["property"], c["scope"]]), []).append(row)
+            groups.setdefault(canonical([c["subject"], c["property"]]), []).append(row)
     for group in groups.values():
-        if len({canonical(r[0]["value"]) for r in group}) > 1:
-            for r in group:
+        if len({canonical(r[0]["value"]) for r in group}) < 2:
+            continue                                           # they all say the same
+        # the keys a claim really limits ("any" limits nothing); every usable claim agrees with the task on them
+        limits = [{k for k, v in r[0]["scope"].items() if v != "any"} for r in group]
+        top = [i for i in range(len(group)) if not any(j != i and limits[i] < limits[j] for j in range(len(group)))]
+        ordered = len({canonical(group[i][0]["value"]) for i in top}) == 1 and all(
+            i in top or all(limits[i] <= limits[j] for j in top) for i in range(len(group)))
+        for i, r in enumerate(group):
+            if not ordered:
                 r[1], r[2], r[3] = False, sorted(r[2] + ["conflicting_claims"]), None
+            elif i not in top:
+                r[1], r[2], r[3] = False, sorted(r[2] + ["less_specific"]), None
     rows.sort(key=lambda r: not r[1])
     return [tuple(r) for r in rows]
 
@@ -335,7 +402,7 @@ def source_from_jsonld(doc):
         raise ValueError("not a SO4AG source")
     version = check_version(head.get("so4ag:version"))
     extensions = (head.get("so4ag:extensions") or {}).get("@value")
-    return check_source({"version": version, "claims": claims_from_jsonld(doc), "extensions": extensions})
+    return check_source({"version": version, "claims": claims_from_jsonld(doc), "extensions": extensions, "published_at": head.get("datePublished")})
 
 
 def claims_from_jsonld(doc):
@@ -372,7 +439,7 @@ def expand02(doc):
 
 
 def read_source(text):
-    """SO4AG JSON (0.1 or 0.2), JSON-LD, or an HTML page with JSON-LD blocks -> {"version", "claims", "extensions"}.
+    """SO4AG JSON (0.1 or 0.2), JSON-LD, or an HTML page with JSON-LD blocks -> {"version", "claims", "extensions", "published_at"}.
     Raises UnsupportedVersion when the document is of a version this reader does not implement."""
     stripped = text.lstrip()
     if stripped.startswith("{"):
@@ -381,7 +448,15 @@ def read_source(text):
             return source_from_jsonld(doc)
         version = check_version(doc.get("so4ag"))
         claims = expand02(doc) if version == "0.2-draft" else doc["claims"]
-        return check_source({"version": version, "claims": claims, "extensions": doc.get("extensions")})
+        extensions = doc.get("extensions")
+        if version == "0.2-draft":
+            # usage is information; the live rule decides whether a stored value may be used, so it is carried as required
+            extensions = dict(extensions or {})
+            if doc.get("usage"):
+                extensions[USAGE_EXT] = {"affects_use": False, "value": doc["usage"]}
+            if doc.get("live"):
+                extensions[LIVE_EXT] = {"affects_use": True, "value": doc["live"]}
+        return check_source({"version": version, "claims": claims, "extensions": extensions, "published_at": doc.get("published_at")})
     for block in re.findall(r'<script\b[^>]*type\s*=\s*["\']application/ld\+json["\'][^>]*>(.*?)</script>', text, re.S | re.I):
         try:
             doc = json.loads(block)
@@ -448,35 +523,60 @@ def run_conformance(folder):
             usable, reasons, value = evaluate(claim, case["task"], instant(case["now"]), profiles,
                                               known_extensions=case.get("knownExtensions", ()))
             want = case["expect"]
-            check(usable == want["usable"] and reasons == want["reasons"] and value == want["value"],
-                  f"{case['id']} ({form}) {case['title']}: got {usable} {reasons}")
+            check(usable == want["usable"] and reasons == want["reasons"] and value == want["value"]
+                  and warnings_of(claim, case["task"]) == want.get("warnings", []),
+                  f"{case['id']} ({form}) {case['title']}: got {usable} {reasons} {warnings_of(claim, case['task'])}")
     # whole sources: version of the format and extensions of the source; canonical form of numbers and strings
     extra = folder / "sources.json"
     n_sources = n_vectors = 0
     if extra.exists():
         for case in json.loads(extra.read_text(encoding="utf-8"))["cases"]:
             n_sources += 1
-            want = case["expect"]
+            want = case.get("expect") or {}
             try:
                 src = read_source(json.dumps(case["document"]))
             except (UnsupportedVersion, InvalidSource) as err:
                 check(want.get("error") == err.code, f"{case['id']} {case['title']}: got {err.code}")
+                continue
+            if "task" in case:                     # one task, the expected result of every claim
+                found = select(src["claims"], case["task"], instant(case["now"]), profiles, source_extensions=src["extensions"],
+                               known_extensions=case.get("knownExtensions", ()), published_at=src.get("published_at"),
+                               live_checked_at=case.get("liveCheckedAt"))
+                for end, wanted in case["claims"].items():
+                    _, usable, reasons, value = next(r for r in found if r[0]["id"].endswith(end))
+                    check(usable == wanted["usable"] and reasons == sorted(wanted.get("reasons", [])) and (usable or value is None),
+                          f"{case['id']} {case['title']}: {end} got {usable} {reasons}")
+                check(len({canonical(r[3]) for r in found if r[1]}) <= 1, f"{case['id']}: two usable answers with different values")
                 continue
             if "error" in want:
                 check(False, f"{case['id']} {case['title']}: the source was read, {want['error']} expected")
                 continue
             for c in src["claims"]:
                 found = select(src["claims"], {"property": c["property"], "scope": c["scope"]}, instant(case["now"]), profiles,
-                               source_extensions=src["extensions"], known_extensions=case.get("knownExtensions", ()))
+                               source_extensions=src["extensions"], known_extensions=case.get("knownExtensions", ()),
+                               published_at=src.get("published_at"))
                 _, usable, reasons, _ = next(r for r in found if r[0]["id"] == c["id"])
                 check(usable == want["usable"] and all(r in reasons for r in want.get("reasons", [])), f"{case['id']} {case['title']}: got {usable} {reasons}")
+    # reading a 0.2 file: the live rule must survive (a stored value older than max_age is not used)
+    n_reading = 0
+    reading = folder.parent / "0.2" / "reading.json"
+    if reading.exists():
+        for case in json.loads(reading.read_text(encoding="utf-8"))["cases"]:
+            n_reading += 1
+            src = read_source(json.dumps(case["document"]))
+            found = select(src["claims"], case["task"], instant(case["now"]), profiles, source_extensions=src["extensions"],
+                           published_at=src.get("published_at"), live_checked_at=case.get("liveCheckedAt"))
+            for end, wanted in case["claims"].items():
+                _, usable, reasons, value = next(r for r in found if r[0]["id"].endswith(end))
+                check(usable == wanted["usable"] and reasons == sorted(wanted.get("reasons", [])) and (usable or value is None),
+                      f"{case['id']} {case['title']}: {end} got {usable} {reasons}")
     vectors = folder / "canonical.json"
     if vectors.exists():
         for vec in json.loads(vectors.read_text(encoding="utf-8"))["vectors"]:
             n_vectors += 1
             check(canonical(vec["value"]) == vec["canonical"], f"canonical form of {vec['canonical']}: got {canonical(vec['value'])}")
     print(f"{total - failed}/{total} checks passed ({len(cases)} evaluation cases x 3 input forms, digests of every claim, "
-          f"{n_sources} whole-source cases, {n_vectors} canonical vectors)")
+          f"{n_sources} whole-source cases, {n_reading} reading cases of the 0.2 draft, {n_vectors} canonical vectors)")
     return 1 if failed else 0
 
 
@@ -484,6 +584,7 @@ def run_ask(argv):
     path, prop, scope, now, review, trust, known = argv[0], None, {}, datetime.now(timezone.utc), False, None, []
     extra_profiles = []
     authenticated = []
+    refuse_disputed, live_checked_at = False, None
     i = 1
     while i < len(argv):
         if argv[i] == "--property":
@@ -500,6 +601,10 @@ def run_ask(argv):
             known.append(argv[i + 1]); i += 2
         elif argv[i] == "--authenticated":
             authenticated.append(argv[i + 1]); i += 2
+        elif argv[i] == "--refuse-disputed":
+            refuse_disputed = True; i += 1
+        elif argv[i] == "--live-checked-at":
+            live_checked_at = instant(argv[i + 1]); i += 2
         elif argv[i] == "--profile":
             extra_profiles.append(json.loads(Path(argv[i + 1]).read_text(encoding="utf-8"))); i += 2
         else:
@@ -516,11 +621,12 @@ def run_ask(argv):
     out = []
     asked = [c for c in source["claims"] if not prop or c["property"] == prop or c["property"].endswith("#" + prop)]
     for uri in sorted({c["property"] for c in asked}):
-        task = {"property": uri, "scope": scope, "requireReview": review, "authenticatedAttestations": authenticated}
+        task = {"property": uri, "scope": scope, "requireReview": review, "authenticatedAttestations": authenticated, "refuseDisputed": refuse_disputed}
         if trust is not None:
             task["trustedIssuers"] = trust
-        for c, usable, reasons, value in select(source["claims"], task, now, profiles, source_extensions=source["extensions"], known_extensions=known):
-            out.append({"claim": c["id"], "usable": usable, "reasons": reasons, "value": value, "scope": c["scope"], "valid_until": c["valid_until"]})
+        for c, usable, reasons, value in select(source["claims"], task, now, profiles, source_extensions=source["extensions"], known_extensions=known,
+                                                published_at=source.get("published_at"), live_checked_at=live_checked_at):
+            out.append({"claim": c["id"], "usable": usable, "reasons": reasons, "warnings": warnings_of(c, task), "value": value, "scope": c["scope"], "valid_until": c["valid_until"]})
     out.sort(key=lambda r: not r["usable"])
     print(json.dumps(out, ensure_ascii=False, indent=2))
     return 0

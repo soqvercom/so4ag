@@ -32,7 +32,9 @@ export function expand02(m) {
   });
   const ext = { ...(m.extensions || {}) };
   if (m.usage) ext[EXT + 'usage'] = { affects_use: false, value: m.usage };
-  if (m.live?.length) ext[EXT + 'live'] = { affects_use: false, value: m.live };
+  // The live rule decides whether a stored value may be used, so it travels as a required extension: a reader that does
+  // not implement it refuses the source instead of using a value that may be too old.
+  if (m.live?.length) ext[EXT + 'live'] = { affects_use: true, value: m.live };
   const links = m.links ? Object.fromEntries(Object.entries(m.links).filter(([k]) => LINKS_01.includes(k))) : null;
   return {
     so4ag: '0.1-draft', id: m.id, revision: m.revision, published_at: m.published_at, publisher: m.publisher,

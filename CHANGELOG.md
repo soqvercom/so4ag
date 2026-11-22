@@ -2,6 +2,22 @@
 
 Changes of the specification are also listed at the end of `spec/so4ag-0.1.md`.
 
+## 0.1.4 (2026-11-22)
+
+Edition 0.1.4 of the consumer rules, after a third external review. Update if you use 0.1.3 or older.
+
+- **Stale live values:** the live rule of the 0.2 draft (`live`, `max_age`) was dropped when a 0.2 file was read. It is now a
+  required extension and both readers refuse a value older than `max_age` (`needs_refresh`). Pass `liveCheckedAt`
+  (`--live-checked-at`) when you asked the live endpoint yourself.
+- **Overlapping scopes:** a general claim and its exception were both returned as usable. Now the most specific claim is used
+  and the others get `less_specific`; an overlap that cannot be ordered is refused (`conflicting_claims`).
+- **Disputed claims:** `disputed` moved from `reasons` to the new list `warnings`. `reasons` only holds what blocks the use.
+  A task with `refuseDisputed` (`--refuse-disputed`) makes a dispute a reason.
+- **Amounts in Python:** the Python reader refuses a source with an unknown currency or wrong decimals, like the validator.
+- **Signatures:** verification refuses an unreadable signing time or key date and reports `integrity` apart from `valid`.
+- **Editions:** readers export `SPEC_EDITION`; the specification names editions and the levels parser, validator, evaluating reader.
+- Conformance suite 0.1.4: 46 evaluation cases, 20 whole-source cases, 4 reading cases for the 0.2 draft.
+
 ## 0.1.3 (2026-11-22)
 
 Safety fixes after a second external review. Update if you use 0.1.2 or older.

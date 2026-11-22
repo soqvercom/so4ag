@@ -49,7 +49,7 @@ A claim that does not have a key listed in `defaults` takes the default. A claim
 }
 ```
 
-**Expansion** (normative): copy every default into each claim that lacks the key; remove keys whose value is `null`; add `"scope": {}` where a claim still has none; move `usage` and `live` into `extensions` under `https://soqver.com/spec/so4ag/0.2/terms#usage` and `…#live` with `affects_use: false`; keep only the link keys 0.1 knows; set `so4ag` to `"0.1-draft"`. The result must be a valid 0.1 manifest.
+**Expansion** (normative): copy every default into each claim that lacks the key; remove keys whose value is `null`; add `"scope": {}` where a claim still has none; move `usage` into `extensions` under `https://soqver.com/spec/so4ag/0.2/terms#usage` with `affects_use: false` and `live` under `…#live` with `affects_use: true` (the live rule decides whether a stored value may be used, so a reader that does not implement it must refuse the source rather than use a value that may be too old); keep only the link keys 0.1 knows; set `so4ag` to `"0.1-draft"`. The result must be a valid 0.1 manifest.
 
 ### Current view
 
@@ -73,7 +73,7 @@ This is a statement by the publisher. The format cannot enforce it and SOQVER do
 "live": [{ "property": "https://soqver.com/spec/so4ag/0.1/rental#availability", "endpoint": "https://soqver.com/api/v1/sources/acme/claims?property=availability", "protocol": "so4ag-claims", "max_age": "PT1H" }]
 ```
 
-For a listed property a stored claim older than `max_age` should be refreshed at `endpoint` before it is used. `protocol` is `so4ag-claims` (the SOQVER claims API: a JSON answer with evaluated claims) or `mcp`. A consumer that cannot reach the endpoint treats the property as unknown.
+For a listed property a stored claim older than `max_age` MUST NOT be used. The age runs from `published_at` of the file in hand, or from the moment the consumer itself asked `endpoint`. An evaluating reader answers `needs_refresh` instead of the stored value; fetching is a separate step, and the reader decides only from the copy and the times it is given. `protocol` is `so4ag-claims` (the SOQVER claims API: a JSON answer with evaluated claims) or `mcp`. A consumer that cannot reach the endpoint treats the property as unknown. The rule survives every reading path: expanded to 0.1 it is a required extension, and the conformance file `reading.json` holds the cases both reference readers pass.
 
 ## Signature
 
@@ -88,6 +88,8 @@ A source can be signed. The signature is a separate small file, so the manifest 
 - `digest` is SHA-256 of the manifest in canonical JSON (RFC 8785), the same canonical form claim digests use.
 - `signature` is Ed25519 over the canonical JSON of the signature document without the `signature` key, base64url.
 - The key file lists public keys: `{ "so4ag_keys": "0.2-draft", "controller": "…", "keys": [{ "key_id", "algorithm": "Ed25519", "public_key", "created_at", "retired_at"? }] }`. `public_key` is the raw 32-byte key in base64url. A retired key still verifies what it signed before it was retired.
+
+Verification keeps two answers apart. *Integrity*: the signature matches this file and this key. *Validity*: integrity and the time rules together. The time rules rest on readable dates: `signed_at` and the dates of the key must be date-times with a time zone, otherwise verification fails (`bad_signed_at`, `bad_key_metadata`); a signature dated in the future (`signed_in_future`) or made after the key was retired (`key_retired`) is not valid even when its integrity holds.
 
 What a signature proves: the file has not changed since it was signed, and it was signed with the key in the key file. Whose key it is follows from where the key file lives. A key file on the company's own domain says the company controls the key. A key file on `soqver.com` says only that the revision was published through a SOQVER account of that company.
 

@@ -24,12 +24,23 @@ export function verifySignature(manifest, sig, keysDoc, { now = new Date() } = {
   if (sig.algorithm !== 'Ed25519') reasons.push('algorithm');
   const key = (keysDoc?.keys || []).find((k) => k.key_id === sig.key_id && k.algorithm === 'Ed25519');
   if (!key) return { valid: false, reasons: [...reasons, 'unknown_key'], key: null };
-  // a retired key still verifies what it signed before it was retired
-  if (key.retired_at && Date.parse(sig.signed_at) >= Date.parse(key.retired_at)) reasons.push('key_retired');
-  if (Date.parse(sig.signed_at) > now.getTime() + 5 * 60e3) reasons.push('bad_signature');
+  // The time rules rest on dates that must be readable: an unreadable date is a refusal, never a pass.
+  const ISO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
+  const at = (x) => (typeof x === 'string' && ISO.test(x) ? Date.parse(x) : NaN);
+  const signedAt = at(sig.signed_at); const created = at(key.created_at);
+  const retired = key.retired_at === undefined || key.retired_at === null ? null : at(key.retired_at);
+  if (!Number.isFinite(signedAt)) reasons.push('bad_signed_at');
+  if (!Number.isFinite(created) || (retired !== null && !Number.isFinite(retired))) reasons.push('bad_key_metadata');
+  if (Number.isFinite(signedAt)) {
+    if (signedAt > now.getTime() + 5 * 60e3) reasons.push('signed_in_future');
+    // a retired key still verifies what it signed before it was retired
+    if (Number.isFinite(retired) && signedAt >= retired) reasons.push('key_retired');
+  }
   try {
     const pub = createPublicKey({ key: { kty: 'OKP', crv: 'Ed25519', x: key.public_key }, format: 'jwk' });
     if (!edVerify(null, payloadOf(sig), pub, Buffer.from(sig.signature, 'base64url'))) reasons.push('bad_signature');
   } catch { reasons.push('bad_signature'); }
-  return { valid: reasons.length === 0, reasons: [...new Set(reasons)], key };
+  // integrity: the signature matches this document and key; valid: integrity and the time and key rules together
+  const integrity = !reasons.some((r) => ['bad_signature', 'digest_mismatch', 'source_mismatch', 'revision_mismatch', 'algorithm'].includes(r));
+  return { valid: reasons.length === 0, integrity, reasons: [...new Set(reasons)], key };
 }

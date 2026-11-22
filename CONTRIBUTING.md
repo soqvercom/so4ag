@@ -30,6 +30,10 @@ Keep pull requests to one topic.
 - **Corrections** (wording, examples, a rule stated more exactly) are made in place and dated.
 - **A change that would make a valid 0.1 source invalid, or change the answer a conforming reader gives,**
   is discussed in an issue first and goes to the next version (0.2), not into 0.1.
+- **Consumer rules of the working draft** are still being tightened. Each change of what a reader answers is a new *edition*
+  (0.1.4, 0.1.5, …): an immutable tag of this repository with the specification, the conformance suite and both readers
+  together, listed in `CHANGELOG.md`. Readers report the edition they implement (`SPEC_EDITION`). Old editions stay
+  available as tags; a stable version of the format will freeze the rules.
 - **New properties and scope keys** belong to a profile. A profile is versioned on its own (`rental-0.1`).
 - **Extensions:** anyone may add fields under their own namespace without asking. A source lists the extensions a reader
   must understand; a reader that does not know one of them does not use the affected claims.

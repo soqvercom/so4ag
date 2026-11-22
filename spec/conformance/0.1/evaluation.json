@@ -1,6 +1,7 @@
 {
   "suite": "SO4AG 0.1 consumer rules",
-  "version": "0.1.1",
+  "version": "0.1.4",
+  "edition": "0.1.4",
   "cases": [
     {
       "id": "E01",
@@ -18,6 +19,7 @@
       "expect": {
         "usable": true,
         "reasons": [],
+        "warnings": [],
         "value": {
           "type": "money",
           "amount": "99.00",
@@ -44,6 +46,7 @@
         "reasons": [
           "scope_mismatch:country"
         ],
+        "warnings": [],
         "value": null
       }
     },
@@ -64,6 +67,7 @@
         "reasons": [
           "scope_not_in_task:delivery_method"
         ],
+        "warnings": [],
         "value": null
       }
     },
@@ -83,6 +87,7 @@
       "expect": {
         "usable": true,
         "reasons": [],
+        "warnings": [],
         "value": {
           "type": "money",
           "amount": "1500.00",
@@ -107,6 +112,7 @@
       "expect": {
         "usable": true,
         "reasons": [],
+        "warnings": [],
         "value": {
           "type": "money",
           "amount": "59.00",
@@ -132,6 +138,7 @@
         "reasons": [
           "not_applicable"
         ],
+        "warnings": [],
         "value": null
       }
     },
@@ -150,6 +157,7 @@
         "reasons": [
           "unknown"
         ],
+        "warnings": [],
         "value": null
       }
     },
@@ -168,6 +176,7 @@
         "reasons": [
           "expired"
         ],
+        "warnings": [],
         "value": null
       }
     },
@@ -186,6 +195,7 @@
         "reasons": [
           "not_yet_valid"
         ],
+        "warnings": [],
         "value": null
       }
     },
@@ -202,6 +212,7 @@
       "expect": {
         "usable": true,
         "reasons": [],
+        "warnings": [],
         "value": {
           "type": "quantity",
           "value": "14",
@@ -224,6 +235,7 @@
         "reasons": [
           "expired"
         ],
+        "warnings": [],
         "value": null
       }
     },
@@ -240,6 +252,7 @@
       "expect": {
         "usable": true,
         "reasons": [],
+        "warnings": [],
         "value": {
           "type": "quantity",
           "value": "30",
@@ -260,6 +273,7 @@
       "expect": {
         "usable": true,
         "reasons": [],
+        "warnings": [],
         "value": {
           "type": "quantity",
           "value": "14",
@@ -269,7 +283,7 @@
     },
     {
       "id": "E14",
-      "title": "A disputed claim stays usable but the dispute is reported; the consumer decides",
+      "title": "A disputed claim stays usable; the dispute is a warning, not a reason, and the consumer decides",
       "manifest": "shop.json",
       "claim": "https://shop.example/claims/cod-fee",
       "task": {
@@ -279,7 +293,8 @@
       "now": "2026-12-01T12:00:00Z",
       "expect": {
         "usable": true,
-        "reasons": [
+        "reasons": [],
+        "warnings": [
           "disputed"
         ],
         "value": {
@@ -287,6 +302,26 @@
           "amount": "39.00",
           "currency": "CZK"
         }
+      }
+    },
+    {
+      "id": "E46",
+      "title": "The same disputed claim for a task that refuses disputed claims (a decision, not a quotation): not usable",
+      "manifest": "shop.json",
+      "claim": "https://shop.example/claims/cod-fee",
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/retail#cashOnDeliveryFee",
+        "scope": {},
+        "refuseDisputed": true
+      },
+      "now": "2026-12-01T12:00:00Z",
+      "expect": {
+        "usable": false,
+        "reasons": [
+          "disputed"
+        ],
+        "warnings": [],
+        "value": null
       }
     },
     {
@@ -307,6 +342,7 @@
         "reasons": [
           "scope_not_comparable:delivery_day"
         ],
+        "warnings": [],
         "value": null
       }
     },
@@ -332,6 +368,7 @@
       "expect": {
         "usable": true,
         "reasons": [],
+        "warnings": [],
         "value": {
           "type": "money",
           "amount": "149.00",
@@ -357,6 +394,7 @@
         "reasons": [
           "property_mismatch"
         ],
+        "warnings": [],
         "value": null
       }
     },
@@ -378,6 +416,7 @@
         "reasons": [
           "subject_mismatch"
         ],
+        "warnings": [],
         "value": null
       }
     },
@@ -401,6 +440,7 @@
       "expect": {
         "usable": true,
         "reasons": [],
+        "warnings": [],
         "value": {
           "type": "enum_set",
           "values": [
@@ -430,6 +470,7 @@
         "reasons": [
           "no_valid_independent_attestation"
         ],
+        "warnings": [],
         "value": null
       }
     },
@@ -455,6 +496,7 @@
         "reasons": [
           "no_valid_independent_attestation"
         ],
+        "warnings": [],
         "value": null
       }
     },
@@ -480,6 +522,7 @@
         "reasons": [
           "no_valid_independent_attestation"
         ],
+        "warnings": [],
         "value": null
       }
     },
@@ -498,6 +541,7 @@
       "expect": {
         "usable": true,
         "reasons": [],
+        "warnings": [],
         "value": {
           "type": "enum_set",
           "values": [
@@ -523,6 +567,7 @@
           "expired",
           "property_mismatch"
         ],
+        "warnings": [],
         "value": null
       }
     },
@@ -542,6 +587,7 @@
       "expect": {
         "usable": true,
         "reasons": [],
+        "warnings": [],
         "value": {
           "type": "money",
           "amount": "5000.00",
@@ -567,6 +613,7 @@
         "reasons": [
           "scope_not_in_task:vehicle_class"
         ],
+        "warnings": [],
         "value": null
       }
     },
@@ -585,6 +632,7 @@
       "expect": {
         "usable": true,
         "reasons": [],
+        "warnings": [],
         "value": {
           "type": "enum",
           "value": "unlimited"
@@ -608,6 +656,7 @@
       "expect": {
         "usable": true,
         "reasons": [],
+        "warnings": [],
         "value": {
           "type": "money",
           "amount": "2970.00",
@@ -635,6 +684,7 @@
         "reasons": [
           "scope_mismatch:rental_days"
         ],
+        "warnings": [],
         "value": null
       }
     },
@@ -657,6 +707,7 @@
         "reasons": [
           "expired"
         ],
+        "warnings": [],
         "value": null
       }
     },
@@ -678,6 +729,7 @@
         "reasons": [
           "scope_mismatch:vehicle_class"
         ],
+        "warnings": [],
         "value": null
       }
     },
@@ -697,6 +749,7 @@
       "expect": {
         "usable": true,
         "reasons": [],
+        "warnings": [],
         "value": {
           "type": "quantity",
           "value": "48",
@@ -720,6 +773,7 @@
         "reasons": [
           "no_trust_policy"
         ],
+        "warnings": [],
         "value": null
       }
     },
@@ -740,6 +794,7 @@
         "reasons": [
           "no_valid_independent_attestation"
         ],
+        "warnings": [],
         "value": null
       }
     },
@@ -762,6 +817,7 @@
         "reasons": [
           "no_valid_independent_attestation"
         ],
+        "warnings": [],
         "value": null
       }
     },
@@ -782,6 +838,7 @@
         "reasons": [
           "unknown_required_extension:https://shop.example/ext/customs-hold"
         ],
+        "warnings": [],
         "value": null
       }
     },
@@ -803,6 +860,7 @@
       "expect": {
         "usable": true,
         "reasons": [],
+        "warnings": [],
         "value": {
           "type": "text",
           "value": "3 až 5 pracovních dnů",
@@ -825,6 +883,7 @@
       "expect": {
         "usable": true,
         "reasons": [],
+        "warnings": [],
         "value": {
           "type": "boolean",
           "value": true
@@ -848,6 +907,7 @@
       "expect": {
         "usable": true,
         "reasons": [],
+        "warnings": [],
         "value": {
           "type": "money",
           "amount": "149.00",
@@ -878,6 +938,7 @@
         "reasons": [
           "scope_not_comparable:delivery_day"
         ],
+        "warnings": [],
         "value": null
       }
     },
@@ -896,6 +957,7 @@
       "expect": {
         "usable": true,
         "reasons": [],
+        "warnings": [],
         "value": {
           "type": "boolean",
           "value": true
@@ -917,6 +979,7 @@
         "reasons": [
           "scope_not_comparable:occasion"
         ],
+        "warnings": [],
         "value": null
       }
     },
@@ -939,6 +1002,7 @@
         "reasons": [
           "attestation_not_authenticated"
         ],
+        "warnings": [],
         "value": null
       }
     },
@@ -964,6 +1028,7 @@
         "reasons": [
           "no_valid_independent_attestation"
         ],
+        "warnings": [],
         "value": null
       }
     },
@@ -984,6 +1049,7 @@
         "reasons": [
           "scope_mismatch:occasion"
         ],
+        "warnings": [],
         "value": null
       }
     }

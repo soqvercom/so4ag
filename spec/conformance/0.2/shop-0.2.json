@@ -41,7 +41,7 @@
     "valid_until": "2026-12-31T00:00:00Z",
     "evidence": [
       {
-        "url": "https://shop.example/platba",
+        "url": "https://shop.example/doprava",
         "observed_at": "2026-11-01T09:00:00Z",
         "kind": "webpage"
       }
@@ -123,14 +123,7 @@
         "type": "money",
         "amount": "149.00",
         "currency": "CZK"
-      },
-      "evidence": [
-        {
-          "url": "https://shop.example/doprava",
-          "observed_at": "2026-11-01T09:00:00Z",
-          "kind": "webpage"
-        }
-      ]
+      }
     },
     {
       "id": "https://shop.example/claims/free-ship-cz",
@@ -178,12 +171,48 @@
         "type": "text",
         "value": "2 až 3 pracovní dny",
         "lang": "cs"
+      }
+    },
+    {
+      "id": "https://shop.example/claims/delivery-time-sk",
+      "revision": "1",
+      "property": "https://soqver.com/spec/so4ag/0.1/retail#deliveryTime",
+      "knowledge_state": "known",
+      "scope": {
+        "country": "SK"
+      },
+      "value": {
+        "type": "text",
+        "value": "3 až 5 pracovních dnů",
+        "lang": "cs"
+      },
+      "extensions": {
+        "https://shop.example/ext/customs-hold": {
+          "affects_use": true,
+          "value": {
+            "note": "Parcels may be held at customs; the time does not include the hold."
+          }
+        }
+      }
+    },
+    {
+      "id": "https://shop.example/claims/gift-wrapping",
+      "revision": "1",
+      "property": "https://shop.example/profile#giftWrapping",
+      "knowledge_state": "known",
+      "scope": {
+        "occasion": "christmas"
+      },
+      "value": {
+        "type": "boolean",
+        "value": true
       },
       "evidence": [
         {
-          "url": "https://shop.example/doprava",
+          "url": "https://shop.example/darky",
           "observed_at": "2026-11-01T09:00:00Z",
-          "kind": "webpage"
+          "kind": "webpage",
+          "quote": "O Vánocích balíme dárky zdarma"
         }
       ]
     },
@@ -248,6 +277,13 @@
           "cash_on_delivery"
         ]
       },
+      "evidence": [
+        {
+          "url": "https://shop.example/platba",
+          "observed_at": "2026-11-01T09:00:00Z",
+          "kind": "webpage"
+        }
+      ],
       "attestations": [
         {
           "id": "https://shop.example/claims/payment-methods/attestations/1",
@@ -276,6 +312,13 @@
           "bank_transfer"
         ]
       },
+      "evidence": [
+        {
+          "url": "https://shop.example/platba",
+          "observed_at": "2026-11-01T09:00:00Z",
+          "kind": "webpage"
+        }
+      ],
       "attestations": [
         {
           "id": "https://shop.example/claims/payment-methods-business/attestations/1",
@@ -307,6 +350,13 @@
         "amount": "39.00",
         "currency": "CZK"
       },
+      "evidence": [
+        {
+          "url": "https://shop.example/platba",
+          "observed_at": "2026-11-01T09:00:00Z",
+          "kind": "webpage"
+        }
+      ],
       "dispute": {
         "since": "2026-11-20T10:00:00Z",
         "conflicting_claims": [

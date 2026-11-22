@@ -1,6 +1,7 @@
 {
-  "suite": "SO4AG 0.1 whole sources: version and extensions of the source",
-  "version": "0.1.3",
+  "suite": "SO4AG 0.1 whole sources: version, extensions, overlapping scopes and the live rule",
+  "version": "0.1.4",
+  "edition": "0.1.4",
   "cases": [
     {
       "id": "S01",
@@ -480,6 +481,722 @@
       },
       "expect": {
         "usable": true
+      }
+    },
+    {
+      "id": "S11",
+      "title": "A general claim and a more specific one with another value, task matches both: the specific one is used, the general one is less_specific",
+      "now": "2026-12-01T12:00:00Z",
+      "document": {
+        "so4ag": "0.1-draft",
+        "id": "https://rental.example/so4ag.json",
+        "revision": "7",
+        "published_at": "2026-11-01T09:30:00Z",
+        "publisher": {
+          "id": "https://rental.example/#org",
+          "name": "Example Rental",
+          "role": "first_party",
+          "domain": "rental.example"
+        },
+        "profiles": [
+          "https://soqver.com/spec/so4ag/0.1/rental"
+        ],
+        "claims": [
+          {
+            "id": "https://rental.example/claims/cancellation",
+            "subject": "https://rental.example/#org",
+            "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+            "knowledge_state": "known",
+            "scope": {},
+            "assertion_basis": "publisher_asserted",
+            "evidence": [
+              {
+                "url": "https://rental.example/terms",
+                "observed_at": "2026-11-01T09:00:00Z",
+                "kind": "webpage"
+              }
+            ],
+            "valid_from": "2026-11-01T00:00:00Z",
+            "valid_until": "2026-12-31T00:00:00Z",
+            "value": {
+              "type": "quantity",
+              "value": "48",
+              "unit": "h"
+            }
+          },
+          {
+            "id": "https://rental.example/claims/cancellation-b",
+            "subject": "https://rental.example/#org",
+            "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+            "knowledge_state": "known",
+            "scope": {
+              "vehicle_class": "suv"
+            },
+            "assertion_basis": "publisher_asserted",
+            "evidence": [
+              {
+                "url": "https://rental.example/terms",
+                "observed_at": "2026-11-01T09:00:00Z",
+                "kind": "webpage"
+              }
+            ],
+            "valid_from": "2026-11-01T00:00:00Z",
+            "valid_until": "2026-12-31T00:00:00Z",
+            "value": {
+              "type": "quantity",
+              "value": "24",
+              "unit": "h"
+            }
+          }
+        ]
+      },
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+        "scope": {
+          "vehicle_class": "suv"
+        }
+      },
+      "claims": {
+        "/cancellation": {
+          "usable": false,
+          "reasons": [
+            "less_specific"
+          ]
+        },
+        "/cancellation-b": {
+          "usable": true
+        }
+      }
+    },
+    {
+      "id": "S12",
+      "title": "The same pair, task outside the exception: only the general claim answers",
+      "now": "2026-12-01T12:00:00Z",
+      "document": {
+        "so4ag": "0.1-draft",
+        "id": "https://rental.example/so4ag.json",
+        "revision": "7",
+        "published_at": "2026-11-01T09:30:00Z",
+        "publisher": {
+          "id": "https://rental.example/#org",
+          "name": "Example Rental",
+          "role": "first_party",
+          "domain": "rental.example"
+        },
+        "profiles": [
+          "https://soqver.com/spec/so4ag/0.1/rental"
+        ],
+        "claims": [
+          {
+            "id": "https://rental.example/claims/cancellation",
+            "subject": "https://rental.example/#org",
+            "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+            "knowledge_state": "known",
+            "scope": {},
+            "assertion_basis": "publisher_asserted",
+            "evidence": [
+              {
+                "url": "https://rental.example/terms",
+                "observed_at": "2026-11-01T09:00:00Z",
+                "kind": "webpage"
+              }
+            ],
+            "valid_from": "2026-11-01T00:00:00Z",
+            "valid_until": "2026-12-31T00:00:00Z",
+            "value": {
+              "type": "quantity",
+              "value": "48",
+              "unit": "h"
+            }
+          },
+          {
+            "id": "https://rental.example/claims/cancellation-b",
+            "subject": "https://rental.example/#org",
+            "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+            "knowledge_state": "known",
+            "scope": {
+              "vehicle_class": "suv"
+            },
+            "assertion_basis": "publisher_asserted",
+            "evidence": [
+              {
+                "url": "https://rental.example/terms",
+                "observed_at": "2026-11-01T09:00:00Z",
+                "kind": "webpage"
+              }
+            ],
+            "valid_from": "2026-11-01T00:00:00Z",
+            "valid_until": "2026-12-31T00:00:00Z",
+            "value": {
+              "type": "quantity",
+              "value": "24",
+              "unit": "h"
+            }
+          }
+        ]
+      },
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+        "scope": {
+          "vehicle_class": "economy"
+        }
+      },
+      "claims": {
+        "/cancellation": {
+          "usable": true
+        },
+        "/cancellation-b": {
+          "usable": false,
+          "reasons": [
+            "scope_mismatch:vehicle_class"
+          ]
+        }
+      }
+    },
+    {
+      "id": "S13",
+      "title": "The value \"any\" limits nothing: a claim for any customer is less specific than a claim for private customers",
+      "now": "2026-12-01T12:00:00Z",
+      "document": {
+        "so4ag": "0.1-draft",
+        "id": "https://rental.example/so4ag.json",
+        "revision": "7",
+        "published_at": "2026-11-01T09:30:00Z",
+        "publisher": {
+          "id": "https://rental.example/#org",
+          "name": "Example Rental",
+          "role": "first_party",
+          "domain": "rental.example"
+        },
+        "profiles": [
+          "https://soqver.com/spec/so4ag/0.1/rental"
+        ],
+        "claims": [
+          {
+            "id": "https://rental.example/claims/cancellation",
+            "subject": "https://rental.example/#org",
+            "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+            "knowledge_state": "known",
+            "scope": {
+              "customer": "any"
+            },
+            "assertion_basis": "publisher_asserted",
+            "evidence": [
+              {
+                "url": "https://rental.example/terms",
+                "observed_at": "2026-11-01T09:00:00Z",
+                "kind": "webpage"
+              }
+            ],
+            "valid_from": "2026-11-01T00:00:00Z",
+            "valid_until": "2026-12-31T00:00:00Z",
+            "value": {
+              "type": "quantity",
+              "value": "48",
+              "unit": "h"
+            }
+          },
+          {
+            "id": "https://rental.example/claims/cancellation-b",
+            "subject": "https://rental.example/#org",
+            "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+            "knowledge_state": "known",
+            "scope": {
+              "customer": "private"
+            },
+            "assertion_basis": "publisher_asserted",
+            "evidence": [
+              {
+                "url": "https://rental.example/terms",
+                "observed_at": "2026-11-01T09:00:00Z",
+                "kind": "webpage"
+              }
+            ],
+            "valid_from": "2026-11-01T00:00:00Z",
+            "valid_until": "2026-12-31T00:00:00Z",
+            "value": {
+              "type": "quantity",
+              "value": "24",
+              "unit": "h"
+            }
+          }
+        ]
+      },
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+        "scope": {
+          "customer": "private"
+        }
+      },
+      "claims": {
+        "/cancellation": {
+          "usable": false,
+          "reasons": [
+            "less_specific"
+          ]
+        },
+        "/cancellation-b": {
+          "usable": true
+        }
+      }
+    },
+    {
+      "id": "S14",
+      "title": "Two claims limit different keys and state different values: the overlap cannot be ordered, neither is used",
+      "now": "2026-12-01T12:00:00Z",
+      "document": {
+        "so4ag": "0.1-draft",
+        "id": "https://rental.example/so4ag.json",
+        "revision": "7",
+        "published_at": "2026-11-01T09:30:00Z",
+        "publisher": {
+          "id": "https://rental.example/#org",
+          "name": "Example Rental",
+          "role": "first_party",
+          "domain": "rental.example"
+        },
+        "profiles": [
+          "https://soqver.com/spec/so4ag/0.1/rental"
+        ],
+        "claims": [
+          {
+            "id": "https://rental.example/claims/cancellation",
+            "subject": "https://rental.example/#org",
+            "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+            "knowledge_state": "known",
+            "scope": {
+              "vehicle_class": "suv"
+            },
+            "assertion_basis": "publisher_asserted",
+            "evidence": [
+              {
+                "url": "https://rental.example/terms",
+                "observed_at": "2026-11-01T09:00:00Z",
+                "kind": "webpage"
+              }
+            ],
+            "valid_from": "2026-11-01T00:00:00Z",
+            "valid_until": "2026-12-31T00:00:00Z",
+            "value": {
+              "type": "quantity",
+              "value": "48",
+              "unit": "h"
+            }
+          },
+          {
+            "id": "https://rental.example/claims/cancellation-b",
+            "subject": "https://rental.example/#org",
+            "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+            "knowledge_state": "known",
+            "scope": {
+              "customer": "private"
+            },
+            "assertion_basis": "publisher_asserted",
+            "evidence": [
+              {
+                "url": "https://rental.example/terms",
+                "observed_at": "2026-11-01T09:00:00Z",
+                "kind": "webpage"
+              }
+            ],
+            "valid_from": "2026-11-01T00:00:00Z",
+            "valid_until": "2026-12-31T00:00:00Z",
+            "value": {
+              "type": "quantity",
+              "value": "24",
+              "unit": "h"
+            }
+          }
+        ]
+      },
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+        "scope": {
+          "vehicle_class": "suv",
+          "customer": "private"
+        }
+      },
+      "claims": {
+        "/cancellation": {
+          "usable": false,
+          "reasons": [
+            "conflicting_claims"
+          ]
+        },
+        "/cancellation-b": {
+          "usable": false,
+          "reasons": [
+            "conflicting_claims"
+          ]
+        }
+      }
+    },
+    {
+      "id": "S15",
+      "title": "A property listed as live, the source is four hours old and max_age is one hour: needs_refresh, the stored value is not used",
+      "now": "2026-12-01T12:00:00Z",
+      "document": {
+        "so4ag": "0.1-draft",
+        "id": "https://rental.example/so4ag.json",
+        "revision": "7",
+        "published_at": "2026-12-01T08:00:00Z",
+        "publisher": {
+          "id": "https://rental.example/#org",
+          "name": "Example Rental",
+          "role": "first_party",
+          "domain": "rental.example"
+        },
+        "profiles": [
+          "https://soqver.com/spec/so4ag/0.1/rental"
+        ],
+        "claims": [
+          {
+            "id": "https://rental.example/claims/cancellation",
+            "subject": "https://rental.example/#org",
+            "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+            "knowledge_state": "known",
+            "scope": {},
+            "assertion_basis": "publisher_asserted",
+            "evidence": [
+              {
+                "url": "https://rental.example/terms",
+                "observed_at": "2026-11-01T09:00:00Z",
+                "kind": "webpage"
+              }
+            ],
+            "valid_from": "2026-11-01T00:00:00Z",
+            "valid_until": "2026-12-31T00:00:00Z",
+            "value": {
+              "type": "quantity",
+              "value": "48",
+              "unit": "h"
+            }
+          }
+        ],
+        "extensions": {
+          "https://soqver.com/spec/so4ag/0.2/terms#live": {
+            "affects_use": true,
+            "value": [
+              {
+                "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+                "endpoint": "https://rental.example/live",
+                "protocol": "so4ag-claims",
+                "max_age": "PT1H"
+              }
+            ]
+          }
+        }
+      },
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+        "scope": {}
+      },
+      "claims": {
+        "/cancellation": {
+          "usable": false,
+          "reasons": [
+            "needs_refresh"
+          ]
+        }
+      }
+    },
+    {
+      "id": "S16",
+      "title": "The same source published thirty minutes ago: usable",
+      "now": "2026-12-01T12:00:00Z",
+      "document": {
+        "so4ag": "0.1-draft",
+        "id": "https://rental.example/so4ag.json",
+        "revision": "7",
+        "published_at": "2026-12-01T11:30:00Z",
+        "publisher": {
+          "id": "https://rental.example/#org",
+          "name": "Example Rental",
+          "role": "first_party",
+          "domain": "rental.example"
+        },
+        "profiles": [
+          "https://soqver.com/spec/so4ag/0.1/rental"
+        ],
+        "claims": [
+          {
+            "id": "https://rental.example/claims/cancellation",
+            "subject": "https://rental.example/#org",
+            "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+            "knowledge_state": "known",
+            "scope": {},
+            "assertion_basis": "publisher_asserted",
+            "evidence": [
+              {
+                "url": "https://rental.example/terms",
+                "observed_at": "2026-11-01T09:00:00Z",
+                "kind": "webpage"
+              }
+            ],
+            "valid_from": "2026-11-01T00:00:00Z",
+            "valid_until": "2026-12-31T00:00:00Z",
+            "value": {
+              "type": "quantity",
+              "value": "48",
+              "unit": "h"
+            }
+          }
+        ],
+        "extensions": {
+          "https://soqver.com/spec/so4ag/0.2/terms#live": {
+            "affects_use": true,
+            "value": [
+              {
+                "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+                "endpoint": "https://rental.example/live",
+                "protocol": "so4ag-claims",
+                "max_age": "PT1H"
+              }
+            ]
+          }
+        }
+      },
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+        "scope": {}
+      },
+      "claims": {
+        "/cancellation": {
+          "usable": true
+        }
+      }
+    },
+    {
+      "id": "S17",
+      "title": "The old source again, but the consumer states it asked the live endpoint ten minutes ago: usable",
+      "now": "2026-12-01T12:00:00Z",
+      "liveCheckedAt": "2026-12-01T11:50:00Z",
+      "document": {
+        "so4ag": "0.1-draft",
+        "id": "https://rental.example/so4ag.json",
+        "revision": "7",
+        "published_at": "2026-12-01T08:00:00Z",
+        "publisher": {
+          "id": "https://rental.example/#org",
+          "name": "Example Rental",
+          "role": "first_party",
+          "domain": "rental.example"
+        },
+        "profiles": [
+          "https://soqver.com/spec/so4ag/0.1/rental"
+        ],
+        "claims": [
+          {
+            "id": "https://rental.example/claims/cancellation",
+            "subject": "https://rental.example/#org",
+            "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+            "knowledge_state": "known",
+            "scope": {},
+            "assertion_basis": "publisher_asserted",
+            "evidence": [
+              {
+                "url": "https://rental.example/terms",
+                "observed_at": "2026-11-01T09:00:00Z",
+                "kind": "webpage"
+              }
+            ],
+            "valid_from": "2026-11-01T00:00:00Z",
+            "valid_until": "2026-12-31T00:00:00Z",
+            "value": {
+              "type": "quantity",
+              "value": "48",
+              "unit": "h"
+            }
+          }
+        ],
+        "extensions": {
+          "https://soqver.com/spec/so4ag/0.2/terms#live": {
+            "affects_use": true,
+            "value": [
+              {
+                "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+                "endpoint": "https://rental.example/live",
+                "protocol": "so4ag-claims",
+                "max_age": "PT1H"
+              }
+            ]
+          }
+        }
+      },
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+        "scope": {}
+      },
+      "claims": {
+        "/cancellation": {
+          "usable": true
+        }
+      }
+    },
+    {
+      "id": "S18",
+      "title": "The live rule names another property: this claim is not affected",
+      "now": "2026-12-01T12:00:00Z",
+      "document": {
+        "so4ag": "0.1-draft",
+        "id": "https://rental.example/so4ag.json",
+        "revision": "7",
+        "published_at": "2026-12-01T08:00:00Z",
+        "publisher": {
+          "id": "https://rental.example/#org",
+          "name": "Example Rental",
+          "role": "first_party",
+          "domain": "rental.example"
+        },
+        "profiles": [
+          "https://soqver.com/spec/so4ag/0.1/rental"
+        ],
+        "claims": [
+          {
+            "id": "https://rental.example/claims/cancellation",
+            "subject": "https://rental.example/#org",
+            "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+            "knowledge_state": "known",
+            "scope": {},
+            "assertion_basis": "publisher_asserted",
+            "evidence": [
+              {
+                "url": "https://rental.example/terms",
+                "observed_at": "2026-11-01T09:00:00Z",
+                "kind": "webpage"
+              }
+            ],
+            "valid_from": "2026-11-01T00:00:00Z",
+            "valid_until": "2026-12-31T00:00:00Z",
+            "value": {
+              "type": "quantity",
+              "value": "48",
+              "unit": "h"
+            }
+          }
+        ],
+        "extensions": {
+          "https://soqver.com/spec/so4ag/0.2/terms#live": {
+            "affects_use": true,
+            "value": [
+              {
+                "property": "https://soqver.com/spec/so4ag/0.1/rental#refundableDeposit",
+                "endpoint": "https://rental.example/live",
+                "protocol": "so4ag-claims",
+                "max_age": "PT1H"
+              }
+            ]
+          }
+        }
+      },
+      "task": {
+        "property": "https://soqver.com/spec/so4ag/0.1/rental#freeCancellation",
+        "scope": {}
+      },
+      "claims": {
+        "/cancellation": {
+          "usable": true
+        }
+      }
+    },
+    {
+      "id": "S19",
+      "title": "An amount in a currency that does not exist makes the source invalid",
+      "now": "2026-12-01T12:00:00Z",
+      "document": {
+        "so4ag": "0.1-draft",
+        "id": "https://rental.example/so4ag.json",
+        "revision": "7",
+        "published_at": "2026-11-01T09:30:00Z",
+        "publisher": {
+          "id": "https://rental.example/#org",
+          "name": "Example Rental",
+          "role": "first_party",
+          "domain": "rental.example"
+        },
+        "profiles": [
+          "https://soqver.com/spec/so4ag/0.1/rental"
+        ],
+        "claims": [
+          {
+            "id": "https://rental.example/claims/deposit-economy",
+            "subject": "https://rental.example/#org",
+            "property": "https://soqver.com/spec/so4ag/0.1/rental#refundableDeposit",
+            "knowledge_state": "known",
+            "scope": {
+              "branch": "https://rental.example/branches/prague-airport",
+              "vehicle_class": "economy"
+            },
+            "assertion_basis": "publisher_asserted",
+            "evidence": [
+              {
+                "url": "https://rental.example/terms",
+                "observed_at": "2026-11-01T09:00:00Z",
+                "kind": "webpage"
+              }
+            ],
+            "valid_from": "2026-11-01T00:00:00Z",
+            "valid_until": "2026-12-31T00:00:00Z",
+            "value": {
+              "type": "money",
+              "amount": "10000.00",
+              "currency": "XYZ"
+            }
+          }
+        ]
+      },
+      "expect": {
+        "error": "invalid_source"
+      }
+    },
+    {
+      "id": "S20",
+      "title": "An amount written with other decimals than its currency has makes the source invalid",
+      "now": "2026-12-01T12:00:00Z",
+      "document": {
+        "so4ag": "0.1-draft",
+        "id": "https://rental.example/so4ag.json",
+        "revision": "7",
+        "published_at": "2026-11-01T09:30:00Z",
+        "publisher": {
+          "id": "https://rental.example/#org",
+          "name": "Example Rental",
+          "role": "first_party",
+          "domain": "rental.example"
+        },
+        "profiles": [
+          "https://soqver.com/spec/so4ag/0.1/rental"
+        ],
+        "claims": [
+          {
+            "id": "https://rental.example/claims/deposit-economy",
+            "subject": "https://rental.example/#org",
+            "property": "https://soqver.com/spec/so4ag/0.1/rental#refundableDeposit",
+            "knowledge_state": "known",
+            "scope": {
+              "branch": "https://rental.example/branches/prague-airport",
+              "vehicle_class": "economy"
+            },
+            "assertion_basis": "publisher_asserted",
+            "evidence": [
+              {
+                "url": "https://rental.example/terms",
+                "observed_at": "2026-11-01T09:00:00Z",
+                "kind": "webpage"
+              }
+            ],
+            "valid_from": "2026-11-01T00:00:00Z",
+            "valid_until": "2026-12-31T00:00:00Z",
+            "value": {
+              "type": "money",
+              "amount": "10000.5",
+              "currency": "CZK"
+            }
+          }
+        ]
+      },
+      "expect": {
+        "error": "invalid_source"
       }
     },
     {

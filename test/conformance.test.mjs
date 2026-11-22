@@ -13,12 +13,24 @@ test('conformance: evaluation cases', () => {
     const r = evaluateClaim(claim, c.task, { now: new Date(c.now), knownExtensions: c.knownExtensions || [] });
     assert.equal(r.usable, c.expect.usable, `${c.id} ${c.title}: usable`);
     assert.deepEqual([...r.reasons].sort(), c.expect.reasons, `${c.id} ${c.title}: reasons`);
+    assert.deepEqual([...r.warnings].sort(), c.expect.warnings || [], `${c.id} ${c.title}: warnings`);
     assert.deepEqual(r.value, c.expect.value, `${c.id} ${c.title}: value`);
   }
 });
 
 test('conformance: whole sources (version of the format, extensions of the source)', () => {
   for (const c of read('sources.json').cases) {
+    if (c.task) {                                   // one task, the expected result of every claim
+      const found = selectClaims(c.document, c.task, { now: new Date(c.now), knownExtensions: c.knownExtensions || [], liveCheckedAt: c.liveCheckedAt || null });
+      for (const [end, want] of Object.entries(c.claims)) {
+        const r = found.find((x) => x.claim.id.endsWith(end)).result;
+        assert.equal(r.usable, want.usable, `${c.id} ${c.title}: ${end} ${r.reasons}`);
+        assert.deepEqual([...r.reasons].sort(), [...(want.reasons || [])].sort(), `${c.id} ${c.title}: ${end}`);
+        if (!r.usable) assert.equal(r.value, null, `${c.id}: a refused claim gives no value`);
+      }
+      assert.equal(new Set(found.filter((x) => x.result.usable).map((x) => JSON.stringify(x.claim.value))).size <= 1, true, `${c.id}: never two usable answers with different values`);
+      continue;
+    }
     const version = checkVersion(c.document);
     const items = selectClaims(c.document, {}, { now: new Date(c.now), knownExtensions: c.knownExtensions || [] })
       .map(({ claim }) => selectClaims(c.document, { property: claim.property, scope: claim.scope }, { now: new Date(c.now), knownExtensions: c.knownExtensions || [] }).find((x) => x.claim.id === claim.id).result);
@@ -33,6 +45,24 @@ test('conformance: whole sources (version of the format, extensions of the sourc
       assert.equal(r.usable, c.expect.usable, `${c.id} ${c.title}: ${r.reasons}`);
       for (const reason of c.expect.reasons || []) assert.ok(r.reasons.includes(reason), `${c.id}: reason ${reason} expected, got ${r.reasons}`);
     }
+  }
+});
+
+test('conformance: reading a 0.2 file keeps the live rule (a stored value older than max_age is not used)', async () => {
+  const { toCore, validate02 } = await import('../validator/v02.mjs');
+  const cases = JSON.parse(readFileSync(new URL('../spec/conformance/0.2/reading.json', import.meta.url), 'utf8')).cases;
+  assert.ok(cases.length >= 4);
+  for (const c of cases) {
+    assert.equal(validate02(c.document, { now: new Date(c.now) }).valid, true, c.id);
+    const found = selectClaims(toCore(c.document), c.task, { now: new Date(c.now), liveCheckedAt: c.liveCheckedAt || null });
+    for (const [end, want] of Object.entries(c.claims)) {
+      const r = found.find((x) => x.claim.id.endsWith(end)).result;
+      assert.equal(r.usable, want.usable, `${c.id} ${c.title}: ${r.reasons}`);
+      assert.deepEqual([...r.reasons].sort(), [...(want.reasons || [])].sort(), `${c.id} ${c.title}`);
+    }
+    // a 0.1 reader that does not implement the live rule must refuse the expanded file instead of using a stale value
+    const core = toCore(c.document);
+    assert.equal(core.extensions['https://soqver.com/spec/so4ag/0.2/terms#live'].affects_use, true, c.id);
   }
 });
 
