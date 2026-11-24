@@ -16,7 +16,7 @@
   "cloudflare": {
     "label": "SO4AG Worker",
     "bindings": {
-      "SOURCE_URL": { "description": "Leave empty to serve so4ag.json from the repository. Or the https address of your source, for example https://soqver.com/s/<your-source>/own/so4ag.json" },
+      "SOURCE_URL": { "description": "Leave empty to serve so4ag.json from the repository. Or the https address of your source, for example https://soqver.com/s/YOUR-SOURCE/own/so4ag.json" },
       "DOMAIN": { "description": "The domain the source belongs to, without https://. Leave empty to use the domain the Worker runs on." },
       "REFRESH_SECONDS": { "description": "How long one copy of a remote source is served before it is read again. At least 60." },
       "MAX_STALE_SECONDS": { "description": "How long the last good copy is served while the remote source cannot be reached. 0 turns this off." }

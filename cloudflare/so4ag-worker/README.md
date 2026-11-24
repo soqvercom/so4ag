@@ -38,7 +38,8 @@ a signature and a key next to it (same address, file names `so4ag.sig.json` and 
 
 ## Deploy
 
-With the button Cloudflare copies this folder into a repository of your own and deploys it from there:
+With the button Cloudflare copies this folder into a repository of your own, asks for the four settings below and
+deploys it from there:
 
 [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/soqvercom/so4ag/tree/main/cloudflare/so4ag-worker)
 
