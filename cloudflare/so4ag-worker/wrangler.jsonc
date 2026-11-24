@@ -1,0 +1,25 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "so4ag-worker",
+  "main": "src/index.js",
+  "compatibility_date": "2026-11-01",
+  // A preview address on workers.dev is enough to try the Worker; the file belongs on your own domain (see routes below).
+  "workers_dev": true,
+  "vars": {
+    // Empty: serve the file so4ag.json from this folder.
+    // An https address: read the source from there, for example https://soqver.com/s/<your-source>/own/so4ag.json
+    "SOURCE_URL": "",
+    // The domain the source belongs to. Leave empty to use the domain the Worker runs on.
+    "DOMAIN": "",
+    // How long one copy of a remote source is served before the Worker asks for a new one (seconds, at least 60).
+    "REFRESH_SECONDS": "300",
+    // How long the last good copy is served while the remote source cannot be reached (seconds; 0 turns this off).
+    "MAX_STALE_SECONDS": "604800"
+  }
+  // After the preview works, put the Worker on your domain. One route per address; www needs its own line.
+  // The DNS record of the domain must be proxied by Cloudflare (orange cloud).
+  // "routes": [
+  //   { "pattern": "example.com/so4ag.json", "zone_name": "example.com" },
+  //   { "pattern": "www.example.com/so4ag.json", "zone_name": "example.com" }
+  // ]
+}

@@ -2,6 +2,15 @@
 
 Changes of the specification are also listed at the end of `spec/so4ag-0.1.md`.
 
+## Cloudflare Worker (2026-11-25)
+
+No change of the format, the readers or the conformance suite.
+
+- New folder `cloudflare/so4ag-worker/`: a Cloudflare Worker that serves `/so4ag.json` on your own domain in front of any
+  website, for platforms that cannot place a file at the root of the domain. The source is a file kept in the Worker or
+  is read from an https address, with the last good copy served while that address cannot be reached. A source whose
+  identifiers are on another domain is never served.
+
 ## 0.1.4 (2026-11-22)
 
 Edition 0.1.4 of the consumer rules, after a third external review. Update if you use 0.1.3 or older.

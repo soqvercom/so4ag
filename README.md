@@ -127,6 +127,14 @@ to edition 0.1.4 of the consumer rules; both readers report the edition they imp
 The MCP server is listed in the official MCP Registry as `com.soqver/so4ag` (`mcp/server.json`). Its tools:
 `list_sources`, `get_source`, `get_claims`, `check_claim`.
 
+## Serve the file on your own domain
+
+A source belongs at `https://your-domain/so4ag.json`. Where the website's platform cannot place a file at the root of the
+domain, the Worker in `cloudflare/so4ag-worker/` serves it in front of the website: it answers that one address and
+leaves every other address to the website. It needs a domain proxied by Cloudflare. It serves either a file kept in the
+Worker or a source read from an address, and never a source whose identifiers are on another domain.
+See `cloudflare/so4ag-worker/README.md`.
+
 ## What is in this repository
 
 | Folder | Content |
@@ -136,6 +144,7 @@ The MCP server is listed in the official MCP Registry as `com.soqver/so4ag` (`mc
 | `readers/python/` | independent reader in Python (standard library only), packaged as `so4ag` |
 | `examples/` | valid example sources and an example of a publisher's own profile |
 | `test/` | tests of the reference code against the conformance suite |
+| `cloudflare/so4ag-worker/` | Cloudflare Worker that serves `/so4ag.json` on your own domain in front of any website |
 
 ## Contributing
 
