@@ -32,7 +32,7 @@ SOURCE_TYPES = ("so4ag:Source", "https://soqver.com/spec/so4ag/0.1/terms#Source"
 SUPPORTED_VERSIONS = ("0.1-draft", "0.2-draft")
 # Edition of the rules this reader implements: the format version says how a document is written, the edition says how a
 # reader decides. Every edition is an immutable tag of the public repository with its own conformance suite.
-SPEC_EDITION = "0.1.4"
+SPEC_EDITION = "0.1.5"
 LIVE_EXT = "https://soqver.com/spec/so4ag/0.2/terms#live"
 USAGE_EXT = "https://soqver.com/spec/so4ag/0.2/terms#usage"
 

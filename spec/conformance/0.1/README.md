@@ -1,6 +1,6 @@
 # SO4AG 0.1 conformance suite
 
-Edition 0.1.4, 2026-11-22. This suite belongs to edition 0.1.4 of the consumer rules; earlier editions stay available as tags of the repository (`v0.1.0` to `v0.1.3`). Plain JSON files for anyone who writes a validator or a reader. Nothing here needs SOQVER, an account or our code.
+Edition 0.1.5, 2026-11-25. This suite belongs to edition 0.1.5; the cases and the expected answers are the same as in edition 0.1.4, only the schema reports errors differently. Earlier editions stay available as tags of the repository (`v0.1.0` to `v0.1.4`). Plain JSON files for anyone who writes a validator or a reader. Nothing here needs SOQVER, an account or our code.
 
 | File | What it is |
 |---|---|

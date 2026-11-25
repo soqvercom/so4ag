@@ -1,7 +1,7 @@
 {
   "suite": "SO4AG 0.1 whole sources: version, extensions, overlapping scopes and the live rule",
-  "version": "0.1.4",
-  "edition": "0.1.4",
+  "version": "0.1.5",
+  "edition": "0.1.5",
   "cases": [
     {
       "id": "S01",

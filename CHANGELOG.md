@@ -2,6 +2,18 @@
 
 Changes of the specification are also listed at the end of `spec/so4ag-0.1.md`.
 
+## 0.1.5 (2026-11-25)
+
+Edition 0.1.5. No change of the consumer rules and no change of what is a valid document; both readers answer every
+conformance case as in 0.1.4. Update when you want shorter validation errors.
+
+- Schema: a value is described with one `if`/`then` pair per value type in place of `oneOf`. A validator now reports
+  the error of the shape named by `type` only. With Ajv 8.20.0 a numeric `amount` gave 31 errors and gives 2; a missing
+  currency gave 24 and gives 2; an unknown `type` gave 20 and gives 1.
+- Checked: the old and the new schema accept exactly the same documents on the examples, the conformance sources and
+  20,000 mutated documents.
+- The idea comes from an answer in the JSON Schema community discussions (json-schema-org/community#1051).
+
 ## Cloudflare Worker (2026-11-25)
 
 No change of the format, the readers or the conformance suite.

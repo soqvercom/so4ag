@@ -90,7 +90,7 @@ const OPENING_HOURS = /^(?:Mo|Tu|We|Th|Fr|Sa|Su)(?:-(?:Mo|Tu|We|Th|Fr|Sa|Su))?(?
 
 /** Edition of the rules this reader implements: the format version says how a document is written, the edition says how a
  *  reader decides. Every edition is an immutable tag of the public repository with its own conformance suite. */
-export const SPEC_EDITION = '0.1.4';
+export const SPEC_EDITION = '0.1.5';
 /** The live rule of the 0.2 draft, carried as a source extension: listed properties must not be used older than max_age. */
 export const LIVE_EXT = 'https://soqver.com/spec/so4ag/0.2/terms#live';
 const instantOf = (x) => (x instanceof Date ? x.getTime() : Date.parse(x ?? ''));

@@ -1,6 +1,6 @@
 {
   "note": "A 0.2 file, one task, and what every reader must answer. A reader that cannot apply the live rule must not use the claim.",
-  "edition": "0.1.4",
+  "edition": "0.1.5",
   "cases": [
     {
       "now": "2026-12-01T12:00:00.000Z",

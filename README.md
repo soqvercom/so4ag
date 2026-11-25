@@ -30,7 +30,7 @@ The Python reader is on PyPI. The JavaScript package installs straight from this
 
 ```bash
 # JavaScript (Node 20 or newer): validator, reader, command so4ag-validate
-npm install github:soqvercom/so4ag#v0.1.4
+npm install github:soqvercom/so4ag#v0.1.5
 npx so4ag-validate https://example.com/so4ag.json
 
 # Python (3.10 or newer, standard library only): reader, command so4ag
@@ -114,7 +114,7 @@ when it does not: the safety rules hold for every profile alike.
 The conformance suite in `spec/conformance/0.1/` is plain JSON and needs none of our code: two valid sources in
 three forms, expected digests, 46 evaluation cases, 31 validation cases, 20 whole-source cases and 25 vectors of the
 canonical form (RFC 8785); `spec/conformance/0.2/reading.json` adds 4 cases for reading the 0.2 draft. The suite belongs
-to edition 0.1.4 of the consumer rules; both readers report the edition they implement (`SPEC_EDITION`). `spec/conformance/0.1/README.md` says when a reader or a validator passes.
+to edition 0.1.5; both readers report the edition they implement (`SPEC_EDITION`). `spec/conformance/0.1/README.md` says when a reader or a validator passes.
 
 ## Hosted read-only endpoints
 

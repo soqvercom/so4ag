@@ -131,10 +131,18 @@
       }
     },
     "value": {
-      "oneOf": [
-        {"$ref": "#/$defs/money"}, {"$ref": "#/$defs/quantity"}, {"$ref": "#/$defs/boolean"},
-        {"$ref": "#/$defs/text"}, {"$ref": "#/$defs/enum"}, {"$ref": "#/$defs/enum_set"},
-        {"$ref": "#/$defs/organization"}, {"$ref": "#/$defs/place"}
+      "$comment": "A value is tagged by its type. Each tag selects its shape with if/then, so a validator reports the error of that shape only; with oneOf it reported every shape. The same values are valid as before.",
+      "type": "object", "required": ["type"],
+      "properties": {"type": {"enum": ["money", "quantity", "boolean", "text", "enum", "enum_set", "organization", "place"]}},
+      "allOf": [
+        {"if": {"type": "object", "required": ["type"], "properties": {"type": {"const": "money"}}}, "then": {"$ref": "#/$defs/money"}},
+        {"if": {"type": "object", "required": ["type"], "properties": {"type": {"const": "quantity"}}}, "then": {"$ref": "#/$defs/quantity"}},
+        {"if": {"type": "object", "required": ["type"], "properties": {"type": {"const": "boolean"}}}, "then": {"$ref": "#/$defs/boolean"}},
+        {"if": {"type": "object", "required": ["type"], "properties": {"type": {"const": "text"}}}, "then": {"$ref": "#/$defs/text"}},
+        {"if": {"type": "object", "required": ["type"], "properties": {"type": {"const": "enum"}}}, "then": {"$ref": "#/$defs/enum"}},
+        {"if": {"type": "object", "required": ["type"], "properties": {"type": {"const": "enum_set"}}}, "then": {"$ref": "#/$defs/enum_set"}},
+        {"if": {"type": "object", "required": ["type"], "properties": {"type": {"const": "organization"}}}, "then": {"$ref": "#/$defs/organization"}},
+        {"if": {"type": "object", "required": ["type"], "properties": {"type": {"const": "place"}}}, "then": {"$ref": "#/$defs/place"}}
       ]
     },
     "evidence": {

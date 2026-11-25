@@ -90,7 +90,7 @@ Set them in `wrangler.jsonc` under `vars`, or in the Cloudflare dashboard (Worke
 The Worker does not validate every claim. Validate the source before you publish it:
 
 ```
-npm install github:soqvercom/so4ag#v0.1.4
+npm install github:soqvercom/so4ag#v0.1.5
 npx so4ag-validate https://example.com/so4ag.json
 ```
 
