@@ -76,6 +76,24 @@ Set them in `wrangler.jsonc` under `vars`, or in the Cloudflare dashboard (Worke
 | `DOMAIN` | empty | The domain the source belongs to. Empty: the domain the Worker runs on. |
 | `REFRESH_SECONDS` | `300` | Remote mode: how long one copy is served before the source is read again. At least 60. |
 | `MAX_STALE_SECONDS` | `604800` | Remote mode: how long the last good copy is served while the source cannot be reached. `0` turns it off. |
+| `COUNT_URL` | empty | Optional counting (see below). The counting address from your counter, for example from Measurement connections in SOQVER. |
+| `COUNT_KEY` | empty | Optional counting. The key that goes with `COUNT_URL`. |
+
+## Optional: count AI crawlers and visits from assistants
+
+Websites behind Cloudflare often have no server log you can read. With `COUNT_URL` and `COUNT_KEY` set, the Worker
+sends one small event for each request of a known AI crawler (`GPTBot`, `OAI-SearchBot`, `ChatGPT-User`, `ClaudeBot`,
+`PerplexityBot` and others) and for each visit that came from the link of an AI assistant (`chatgpt.com`,
+`perplexity.ai`, `gemini.google.com`, `copilot.microsoft.com`, `claude.ai` and others, also `utm_source=chatgpt.com`).
+
+- The event is only the crawler name or the assistant host: `{"t":"bot","n":"GPTBot"}` or `{"t":"ref","h":"chatgpt.com"}`.
+  Never an IP address, a cookie, the path, the full referrer or anything else about the visitor.
+- It is sent after the website answered (`waitUntil`), so it does not slow pages down. A counter that does not
+  answer never breaks the website. Only an https `COUNT_URL` is used.
+- To see every request, the Worker needs the route `example.com/*` (and `www.example.com/*`) instead of the three
+  `/so4ag.json` routes. Every other address is still answered by your website. On the Workers Free plan the daily
+  request limit then applies to the whole website; for a busy site use a paid plan or keep counting off.
+- The user agent can be faked. The counts say what the requests claimed to be, not who really sent them.
 
 ## What the Worker checks
 

@@ -14,12 +14,21 @@
     // How long one copy of a remote source is served before the Worker asks for a new one (seconds, at least 60).
     "REFRESH_SECONDS": "300",
     // How long the last good copy is served while the remote source cannot be reached (seconds; 0 turns this off).
-    "MAX_STALE_SECONDS": "604800"
+    "MAX_STALE_SECONDS": "604800",
+    // Optional counting of AI crawlers and of visits from AI assistants (both from the page Measurement connections
+    // in the SOQVER administration). Needs the route domain/* so the Worker sees every request; empty turns it off.
+    "COUNT_URL": "",
+    "COUNT_KEY": ""
   }
   // After the preview works, put the Worker on your domain. One route per address; www needs its own line.
   // The DNS record of the domain must be proxied by Cloudflare (orange cloud).
   // "routes": [
   //   { "pattern": "example.com/so4ag.json", "zone_name": "example.com" },
   //   { "pattern": "www.example.com/so4ag.json", "zone_name": "example.com" }
+  // ]
+  // With counting, one route covers the whole domain instead (the website still answers every other address):
+  // "routes": [
+  //   { "pattern": "example.com/*", "zone_name": "example.com" },
+  //   { "pattern": "www.example.com/*", "zone_name": "example.com" }
   // ]
 }

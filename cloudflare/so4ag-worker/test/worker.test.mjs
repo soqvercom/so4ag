@@ -188,3 +188,33 @@ test('remote: signature and key are served next to the source; without them the 
   assert.equal((await ask(odd, 'https://firma.cz/so4ag.sig.json', { SOURCE_URL: `https://files.example/${++n}/facts` })).headers.get('x-from'), 'origin');
   assert.equal((await ask(odd, 'https://firma.cz/so4ag.json', { SOURCE_URL: `https://files.example/${n}/facts` })).status, 200);
 });
+
+test('counting: one event for a known AI crawler or a visit from an assistant, sent after the answer, nothing else', async () => {
+  const { countEvent } = await import('../src/index.js');
+  const req = (url, h = {}) => new Request(url, { headers: h });
+  assert.deepEqual(countEvent(req('https://example.com/', { 'user-agent': 'Mozilla/5.0 (compatible; GPTBot/1.2; +https://openai.com/gptbot)' })), { t: 'bot', n: 'GPTBot' });
+  assert.deepEqual(countEvent(req('https://example.com/', { referer: 'https://www.perplexity.ai/search?q=x' })), { t: 'ref', h: 'perplexity.ai' });
+  assert.deepEqual(countEvent(req('https://example.com/?utm_source=chatgpt.com')), { t: 'ref', h: 'chatgpt.com' });
+  assert.equal(countEvent(req('https://example.com/', { 'user-agent': 'Mozilla/5.0 Firefox/140', referer: 'https://www.google.com/' })), null);
+  const sent = [];
+  const w = world();
+  const inner = w.fetch;
+  w.fetch = async (input, init) => { if (!(input instanceof Request) && init?.method === 'POST') { sent.push({ url: String(input), init }); return new Response('{}'); } return inner(input, init); };
+  const env = { COUNT_URL: 'https://soqver.com/api/count/firma', COUNT_KEY: 'k'.repeat(32) };
+  const page = await ask(w, 'https://example.com/cenik', env, { headers: { 'user-agent': 'ClaudeBot/1.0' } });
+  assert.equal(await page.text(), 'the website');                  // the website answers as before
+  assert.equal(sent.length, 1);
+  assert.equal(sent[0].url, env.COUNT_URL);
+  assert.equal(sent[0].init.headers['x-soqver-key'], env.COUNT_KEY);
+  assert.deepEqual(JSON.parse(sent[0].init.body), { events: [{ t: 'bot', n: 'ClaudeBot' }] });
+  assert.doesNotMatch(sent[0].init.body, /cenik|example/);         // never the path or the domain of the visit
+  await ask(w, 'https://example.com/', env, { headers: { 'user-agent': 'Mozilla/5.0 Firefox/140' } });
+  await ask(w, 'https://example.com/', { COUNT_URL: 'http://plain.example/count', COUNT_KEY: 'x' }, { headers: { 'user-agent': 'GPTBot' } });
+  await ask(w, 'https://example.com/', {}, { headers: { 'user-agent': 'GPTBot' } });
+  assert.equal(sent.length, 1);                                    // a person, an http address or no settings: nothing is sent
+  const file = await ask(w, 'https://example.com/so4ag.json', env, { headers: { 'user-agent': 'OAI-SearchBot/1.0' } });
+  assert.equal(file.status, 200);                                  // the file of the source is still served, and the read is counted
+  assert.equal(sent.length, 2);
+  w.fetch = async (input, init) => { if (init?.method === 'POST') throw new Error('counter down'); return inner(input, init); };
+  assert.equal(await (await ask(w, 'https://example.com/', env, { headers: { 'user-agent': 'GPTBot' } })).text(), 'the website');   // a broken counter never breaks the website
+});

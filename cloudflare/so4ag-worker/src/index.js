@@ -7,15 +7,24 @@
 //
 // The Worker never serves a source whose identifiers are on a different domain than the one it runs on.
 // Every other address is passed to the website untouched.
+//
+// Counting (optional, COUNT_URL and COUNT_KEY set, route domain/*): for a request of a known AI crawler or a visit that
+// came from the link of an AI assistant, the Worker sends one small event to the counter after the website answered.
+// It sends only the crawler name or the assistant host: never an address, a cookie, a path or anything about the visitor.
 import embeddedSource from '../so4ag.json' with { type: 'json' };
 
-const VERSION = '0.1.0';
+const VERSION = '0.2.0';
 const SOURCE_FILE = 'so4ag.json';
 // Address on the company domain -> file name next to the source.
 const PATHS = { '/so4ag.json': SOURCE_FILE, '/so4ag.sig.json': 'so4ag.sig.json', '/.well-known/so4ag-keys.json': 'so4ag-keys.json' };
 const FETCH_TIMEOUT_MS = 8000;
 const MAX_BYTES = 5 * 1024 * 1024;
 const LOCAL = /^(localhost|127\.0\.0\.1|\[::1\])$|\.workers\.dev$/;
+
+/** Names AI crawlers send in their user agent (the same list SOQVER counts). */
+export const AI_CRAWLERS = ['GPTBot', 'OAI-SearchBot', 'ChatGPT-User', 'ClaudeBot', 'Claude-SearchBot', 'Claude-User', 'PerplexityBot', 'Perplexity-User', 'meta-externalagent', 'CCBot', 'Bytespider', 'Amazonbot', 'DuckAssistBot', 'MistralAI-User'];
+/** Hosts of AI assistants whose links bring people to a website. */
+export const ASSISTANT_HOSTS = ['chatgpt.com', 'chat.openai.com', 'perplexity.ai', 'gemini.google.com', 'copilot.microsoft.com', 'claude.ai', 'chat.deepseek.com', 'duck.ai', 'you.com', 'meta.ai', 'grok.com', 'chat.mistral.ai'];
 
 const memory = new Map(); // per isolate: remote address -> { body, at, etag }
 
@@ -137,9 +146,34 @@ async function remote(file, cfg, expected, request, ctx, deps) {
   return problem(503, 'source_unreachable', `The Worker could not read ${file} from its source: ${why}.`, { 'retry-after': '60' });
 }
 
+/** The one event a request is worth counting for, or null. Only a name or a host, nothing about the visitor. */
+export function countEvent(request) {
+  const ua = String(request.headers.get('user-agent') || '').toLowerCase();
+  const bot = ua ? AI_CRAWLERS.find((b) => ua.includes(b.toLowerCase())) : null;
+  if (bot) return { t: 'bot', n: bot };
+  let ref = '';
+  try { ref = bare(new URL(request.headers.get('referer') || '').hostname); } catch { /* no referrer */ }
+  const host = ref && ASSISTANT_HOSTS.find((h) => ref === h || ref.endsWith('.' + h));
+  if (host) return { t: 'ref', h: host };
+  let utm = '';
+  try { utm = bare(new URL(request.url).searchParams.get('utm_source') || ''); } catch { /* none */ }
+  const tagged = utm && ASSISTANT_HOSTS.find((h) => utm === h);  // ChatGPT adds utm_source=chatgpt.com to its links
+  return tagged ? { t: 'ref', h: tagged } : null;
+}
+
+function counting(request, env, ctx, d) {
+  const url = String(env.COUNT_URL || '').trim(); const key = String(env.COUNT_KEY || '').trim();
+  if (!/^https:\/\//i.test(url) || !key || !ctx || !ctx.waitUntil) return;
+  const e = countEvent(request);
+  if (!e) return;
+  const post = Promise.resolve().then(() => d.fetch(url, { method: 'POST', headers: { 'content-type': 'application/json', 'x-soqver-key': key, 'user-agent': `so4ag-worker/${VERSION}` }, body: JSON.stringify({ events: [e] }) })).catch(() => {});
+  ctx.waitUntil(post);                                                   // after the answer: counting never slows the website down
+}
+
 export async function handle(request, env, ctx, deps = {}) {
   const d = { fetch: deps.fetch || ((...a) => fetch(...a)), caches: deps.caches || (typeof caches !== 'undefined' ? caches : null), embedded: deps.embedded || embeddedSource };
   const url = new URL(request.url);
+  counting(request, env || {}, ctx, d);
   const file = PATHS[url.pathname];
   const host = bare(url.hostname);
   // Not ours: the website answers as before. A preview address has no website behind it, so it says so.
